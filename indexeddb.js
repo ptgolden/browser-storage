@@ -1,127 +1,156 @@
 var indexedDB
   , IDBKeyRange
-  , db
-  , DB_NAME = 'topicsdb'
-  , DB_VERSION = 1
-  , OBJECT_STORE_NAME = 'topics'
 
 indexedDB = window.indexedDB
   || window.mozIndexedDB
   || window.webkitIndexedDB
   || window.msIndexedDB;
-
 IDBKeyRange = window.IDBKeyRange
   || window.webkitIDBKeyRange
   || window.msIDBKeyRange;
 
+function dbCreated() {
+  reportAction('DB created');
+  $('#delete-db, #load-data').prop('disabled', false);
+  $('#open-db').prop('disabled', true);
+  return;
+}
 
-/**
- * Since indexedDB does not allow for full-text searching, to improve the
- * returns of results-as-you-type, we'll create an index for each term that
- * includes every 'keyword': in our case, simply every capital word of more
- * than one character.
- */
-function getKeywords(phrase) {
-  var tokens = phrase.split(/[, ]+/)
-    , keywords = [];
-  for (var i = 0; i < tokens.length; i++) {
-    if (/^[A-Z][^.]+/.test(tokens[i])) {
-      keywords.push(tokens[i].toLowerCase())
+function dbDeleted() {
+  reportAction('DB deleted');
+  $('#delete-db, #load-data, #textinput').prop('disabled', true);
+  $('#open-db').prop('disabled', false);
+  return;
+}
+
+var IDBBackend = function () {
+  var that = this
+
+  this.db = null;
+
+  this.init = function () {
+    var req;
+
+    req = indexedDB.open('idb_test');
+    req.onsuccess = function (e) {
+      that.db = this.result;
+      dbCreated();
+    }
+    req.onupgradeneeded = function (e) {
+      var db = this.result
+        , topicsObjectStore
+
+      topicsObjectStore = db.createObjectStore('topics', {
+        keyPath: 'id',
+        autoIncrement: true
+      });
+      topicsObjectStore.createIndex('keywords', 'keywords', {
+        unique: false,
+        multiEntry: true
+      });
+    }
+    req.onerror = function (e) {
+      console.log('Database error', e);
     }
   }
-  return keywords;
-}
 
-function openDB() {
-  var request = indexedDB.open(DB_NAME, DB_VERSION);
-  request.onsuccess = function (e) {
-    // Save the db to the global scope so we can use it later without re-opening
-    db = this.result;
+  this.loadData = function (name) {
+    var dataSource = dataSources[name]
+      , req
+      , db = this.db
 
-    // Bind the search function to the input & enable it
-    $('#textinput')
-      .on('input', function () { performSearch(this.value); })
-      .prop('disabled', false)
-      .after('<div>DB loaded, ready</div>')
-  }
-  request.onerror = function (e) {
-    console.log('Database error: ' + e.target.errorCode);
-  }
-  request.onupgradeneeded = function (e) {
-    var db = this.result;
-    var objectStore = db.createObjectStore(OBJECT_STORE_NAME, {
-      keyPath: 'id',
-      autoIncrement: true
-    });
-    objectStore.createIndex('name', 'name', {
-      unique: false
-    });
-    objectStore.createIndex('keywords', 'keywords', {
-      unique: false,
-      multiEntry: true
-    });
+    if (!dataSource) {
+      console.log('no such data source: ' + name)
+      return;
+    }
 
-    // Populate the db
-    topic_data.topics.forEach(function (topic) {
-      topic.keywords = getKeywords(topic.name);
-      topic.aliases.forEach(function (alias) {
-        topic.keywords = topic.keywords.concat(getKeywords(alias));
+    req = new XMLHttpRequest();
+    req.onload = function () {
+      var data = JSON.parse(this.responseText)
+        , startTime = Date.now()
+        , endTime
+        , transaction
+        , objectStore
+
+        trans = transaction
+
+      transaction = db.transaction([name], 'readwrite')
+      transaction.oncomplete = function () {
+        endTime = Date.now();
+        reportAction('loaded ' + dataSource.src 
+            + ' (' + data[name].length + ' records)', startTime, endTime);
+        $('#textinput')
+          .prop('disabled', false)
+          .off('**')
+          .on('input', function () {
+            that.performSearch(this.value);
+          });
+      }
+      objectStore = transaction.objectStore(name);
+
+      data[name].forEach(function (item) {
+        var keywords = [];
+        dataSource.keyword_fields.forEach(function (field) {
+          [].concat(item[field]).forEach(function (phrase) {
+            keywords = keywords.concat(getKeywords(phrase));
+          })
+        });
+        item.keywords = keywords;
+        objectStore.put(item);
       });
-      objectStore.add(topic);
-    });
 
-  }
-}
-
-function performSearch(phrase) {
-  var startTime = Date.now()
-    , $container = $('#results').html('')
-    , firstWord = phrase.split(' ')[0].toLowerCase()
-    , range
-    , transaction
-    , endTime
-
-  // Search the keyword index for all those words that begin with the first
-  // word of the searched phrase.
-  range = IDBKeyRange.bound(firstWord, firstWord + '\uffff')
-
-  if (!firstWord || firstWord.length < 2) {
+    }
+    req.open('get', dataSource.src);
+    req.send();
     return;
   }
 
-  // Store this transaction in this function-- on the onsuccess handler, abort
-  // if a new search has started. Since indexedDB is asynchronous, this is
-  // a way to prevent mixing the results of two separate searches.
-  transaction = db.transaction(['topics'])
-  performSearch.currentTransaction = transaction
+  this.performSearch = function (phrase) {
+    var start = Date.now()
+      , $container = $('#results').html('')
+      , firstWord = phrase.split(' ')[0].toLowerCase()
+      , range
+      , transaction
 
-  transaction
-    .objectStore('topics')
-    .index('keywords')
-    .openCursor(range)
-    .onsuccess = function (e) {
-      var cursor = e.target.result;
-      if (cursor && performSearch.currentTransaction === transaction) {
-        $container.append( '<div>' + cursor.value.name + '</div>' );
-        cursor.continue();
-      } else if (!cursor) {
-        endTime = Date.now();
-        reportTime(phrase, startTime, endTime);
+    if (!firstWord || firstWord.length < 2) {
+      if (that.currentTransaction) {
+        that.currentTransaction.abort();
       }
+      return;
     }
 
-}
+    // Search the keyword index for all those words that begin with the first
+    // word of the searched phrase.
+    range = IDBKeyRange.bound(firstWord, firstWord + '\uffff');
 
-function reportTime(phrase, start, end) {
-  var $time = $('#time');
-  $time.prepend(
-    '<div>' + 
-    'Search time for ' + phrase + ': ' +
-    (end - start) + 'ms' +
-    '</div>')
-  if ($time.children().length > 20) {
-    $time.children().slice(20).remove();
+    transaction = that.db.transaction(['topics']);
+    that.currentTransaction = transaction;
+
+    transaction
+      .objectStore('topics')
+      .index('keywords')
+      .openCursor(range)
+      .onsuccess = function (e) {
+        var cursor = e.target.result;
+        if (cursor && that.currentTransaction === transaction) {
+          $container.append('<div>' + cursor.value.name + '</div>');
+          cursor.continue();
+        } else if (!cursor) {
+          var end = Date.now();
+          reportAction('Searched for ' + phrase, start, end);
+          that.currentTransaction = null;
+        }
+      }
   }
-}
 
-openDB();
+  this.teardown = function () {
+    var req = indexedDB.deleteDatabase('idb_test').onsuccess = function () {
+      dbDeleted();
+    }
+    if (that.db) {
+      that.db.close();
+    }
+  }
+
+  return this;
+}
