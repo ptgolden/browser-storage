@@ -69,7 +69,7 @@ var IDBBackend = function () {
       }
 
       data.items.forEach(function (item) {
-        kwFields = dataSource.keyword_fields.map(function (field) {
+        var kwFields = dataSource.keyword_fields.map(function (field) {
           return item[field];
         });
         item.keywords = buildKeywords(kwFields);

@@ -61,10 +61,10 @@ var localStorageBackend = function() {
       if (!topic.hasOwnProperty('keywords')) {
         topic.keywords = getKeywords(topic.name);
       }
-      kwmatch = topic.keywords.filter(function(kw) {
+      match = topic.keywords.filter(function(kw) {
         return kw.startsWith(lphrase);
       });
-      if (kwmatch.length > 0) {
+      if (match.length > 0) {
         $container.append('<div>' + topic.name + '</div>');
         counter += 1
       }

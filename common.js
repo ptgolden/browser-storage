@@ -84,14 +84,20 @@ function getKeywords(phrase) {
   return keywords;
 }
 
+function isStrOrArr(thing) {
+  return (typeof(thing) === 'string' || Array.isArray(thing));
+}
+
 function buildKeywords(arr) {
   var keywords = [];
   arr.forEach(function(grp) {
-    if (grp.length === 0 || !(typeof(grp) === 'string' || Array.isArray(grp))) {
+    var words;
+    if (grp.length === 0 || !isStrOrArr(grp)) {
       return;
     }
-    [].concat(grp).forEach(function (phrase) {
-      keywords = keywords.concat(getKeywords(phrase));
+    words = Array.isArray(grp) ? grp.slice(0) : [grp];
+    words.forEach(function (word) {
+      keywords = keywords.concat(getKeywords(word));
     });
   });
   return keywords;
