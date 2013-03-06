@@ -4,7 +4,6 @@ var backend
 dataSources = {
   'topics': {
     'src': 'data/topics.json',
-    'items': 'topics',
     'keyword_fields': ['name', 'aliases']
   }
 }
@@ -44,25 +43,21 @@ $(document).on('ready', function () {
 
 // Report an action, optionally with a start and end time
 function reportAction(action, start, end) {
-  var $time = $('#time')
+  var $actionsContainer = $('#messages')
+    , $action = $('<div>')
     , msg
 
-  if (end && start) {
-    msg = action + ': ' + (end - start) + 'ms';
-  } else {
-    msg = action;
+  msg = !(end && start) ? action : action + ': ' + (end - start) + 'ms';
+  $action.html(msg).prependTo($actionsContainer);
+
+  if ($actionsContainer.children().length > 20) {
+    $actionsContainer.children().slice(20).remove();
   }
 
-  $time.prepend('<div>' + msg + '</div>')
-  if ($time.children().length > 20) {
-    $time.children().slice(20).remove();
-  }
+  return $action;
 }
 
-/**
- * Get all capitalized words of more than one letter from a phrase.
- *
- */
+// Get all capitalized words of more than one letter from a phrase.
 function getKeywords(phrase) {
   var keywords = phrase
     .replace(/[,'".]/, '')
@@ -73,6 +68,19 @@ function getKeywords(phrase) {
     .map(function (kw) {
       return kw.toLowerCase()
     });
+  return keywords;
+}
+
+function buildKeywords(arr) {
+  var keywords = [];
+  arr.forEach(function(grp) {
+    if (grp.length === 0 || !(typeof(grp) === 'string' || Array.isArray(grp))) {
+      return;
+    }
+    [].concat(grp).forEach(function (phrase) {
+      keywords = keywords.concat(getKeywords(phrase));
+    });
+  });
   return keywords;
 }
 
