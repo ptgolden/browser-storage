@@ -15,11 +15,11 @@ $(document).on('ready', function () {
       backend.teardown();
     }
 
-    disableInputs();
+    backendDestroyed();
     backend = null;
 
     switch (selectedBackend) {
-    case 'indexeddb':
+    case 'IndexedDB':
       backend = new IDBBackend();
       backend.oninit = function () {
         reportAction('IndexedDB opened');
@@ -29,7 +29,7 @@ $(document).on('ready', function () {
         backend.destroyed = true;
       }
       break;
-    case 'localstorage':
+    case 'localStorage':
       backend = new localStorageBackend();
       backend.oninit = function () {
         reportAction('Using localStorage');
@@ -43,10 +43,11 @@ $(document).on('ready', function () {
 
     if (backend) {
       backend.init();
-      enableInputs();
+      backendSelected(selectedBackend);
     }
 
   });
+  reportAction('Select a backend to begin.');
 });
 
 // Report an action, optionally with a start and end time
@@ -57,6 +58,10 @@ function reportAction(action, start, end) {
 
   msg = !(end && start) ? action : action + ': ' + (end - start) + 'ms';
   $action.html(msg).prependTo($actionsContainer);
+
+  if (end && start) {
+    $action.addClass('time');
+  }
 
   if ($actionsContainer.children().length > 20) {
     $actionsContainer.children().slice(20).remove();
@@ -92,16 +97,20 @@ function buildKeywords(arr) {
   return keywords;
 }
 
-function enableInputs() {
+function backendSelected(backend) {
+  $('#backend-choices').hide();
+  $('#selected-backend').show().find('span').html(backend);
   $('#load-data, #delete-db').prop('disabled', false);
 }
 
-function disableInputs() {
+function backendDestroyed() {
+  $('#backend-choices').show();
+  $('#selected-backend').hide().find('span').html('');
   $('#load-data, #delete-db, #textinput').prop('disabled', true);
 }
 
 function enableSearch() {
   $('#textinput').val('').prop('disabled', false);
-  reportAction('Type into input to search.');
+  reportAction('Input bound. Type to search.');
 }
 

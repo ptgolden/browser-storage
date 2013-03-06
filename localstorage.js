@@ -24,6 +24,7 @@ var localStorageBackend = function() {
     }
 
     request.onload = function () {
+      var msg;
       localStorage.setItem(source, this.responseText);
       backend.cachedData[source] = JSON.parse(localStorage.getItem(source));
       backend.cachedData[source].items.forEach(function (item) {
@@ -32,7 +33,8 @@ var localStorageBackend = function() {
         });
         item.keywords = buildKeywords(kwFields);
       });
-      reportAction('Topics loaded', start, Date.now());
+      msg = 'Loaded ' + backend.cachedData[source].items.length + ' records from ' + dataSource.src;
+      reportAction(msg, start, Date.now());
       enableSearch();
     }
     request.open('get', dataSource.src);

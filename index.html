@@ -8,16 +8,8 @@
     <script type="text/javascript" src="indexeddb.js"></script>
     <script type="text/javascript" src="localstorage.js"></script>
     <style type="text/css">
-
-      #setup {
-        margin: 1em 0;
-        border-bottom: 1px solid #333;
-      }
-
-      #setup div {
-        margin: 1em;
-      }
-
+      #setup { margin: 1em 0; border-bottom: 1px solid #333; }
+      #setup div { margin: 1em; } 
       #setup div label {
         display: inline-block;
         width: 150px;
@@ -25,29 +17,48 @@
         padding-right: 10px;
       }
 
+      #messages > div { margin-bottom: 4px; }
+      #messages > div:first-of-type:before {
+        content: ">";
+        display: block;
+        margin-top: -1em;
+        position: relative;
+        top: 1.2em;
+        left: -16px;
+      }
+      #messages .time {
+        color: green;
+      }
+      #backend > div { display: inline-block; margin: 0; }
+      #selected-backend { font-weight: bold; }
     </style>
   </head>
   <body>
 
     <div id="setup">
-      <div id="backend" class="control">
-        <label>Select a backend: </label>
-        <button data-backend="indexeddb">IndexedDB</button>
-        <button data-backend="localstorage">localStorage</button>
+      <div id="backend">
+        <label>Backend: </label>
+        <div id="backend-choices">
+          <button data-backend="IndexedDB">IndexedDB</button>
+          <button data-backend="localStorage">localStorage</button>
+        </div>
+        <div id="selected-backend" style="display: none;">
+          <span></span>
+          <button id="delete-db"
+            disabled="disabled"
+            onclick="backendDestroyed(); backend.teardown()">Destroy</button>
+        </div>
       </div>
 
-      <div id="controls" class="control">
-        <label>Controls: </label>
+      <div id="controls">
+        <label>Data: </label>
         <button id="load-data"
           disabled="disabled"
-          onclick="reportAction('Loading topic data'); backend.loadData('topics')">Load topic data</button>
-        <button id="delete-db"
-          disabled="disabled"
-          onclick="disableInputs(); backend.teardown()">Delete database</button>
+          onclick="reportAction('Loading topic data'); backend.loadData('topics')">EN topics</button>
       </div>
 
-      <div id="search" class="control">
-        <label>Search database: </label>
+      <div id="search">
+        <label>Search: </label>
         <input id="textinput"
           disabled="disabled"
           oninput="backend.performSearch('topics', this.value)" />
