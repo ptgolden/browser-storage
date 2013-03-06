@@ -1,4 +1,7 @@
-var dataSources = {
+var backend
+  , dataSources
+
+dataSources = {
   'topics': {
     'src': 'data/topics.json',
     'items': 'topics',
@@ -6,6 +9,40 @@ var dataSources = {
   }
 }
 
+$(document).on('ready', function () {
+  $('#backend button').on('click', function () {
+    var selectedBackend = $(this).data('backend');
+    if (backend && !backend.destroyed) {
+      backend.teardown();
+    }
+
+    disableInputs();
+    backend = null;
+
+    switch (selectedBackend) {
+    case 'indexeddb':
+      backend = new IDBBackend();
+      backend.oninit = function () {
+        reportAction('IndexedDB opened');
+      }
+      backend.onteardown = function () {
+        reportAction('IndexedDB deleted');
+        backend.destroyed = true;
+      }
+      break;
+    case 'localstorage':
+      break;
+    }
+
+    if (backend) {
+      backend.init();
+      enableInputs();
+    }
+
+  });
+});
+
+// Report an action, optionally with a start and end time
 function reportAction(action, start, end) {
   var $time = $('#time')
     , msg
@@ -37,5 +74,18 @@ function getKeywords(phrase) {
       return kw.toLowerCase()
     });
   return keywords;
+}
+
+function enableInputs() {
+  $('#load-data, #delete-db').prop('disabled', false);
+}
+
+function disableInputs() {
+  $('#load-data, #delete-db, #textinput').prop('disabled', true);
+}
+
+function enableSearch() {
+  $('#textinput').val('').prop('disabled', false);
+  reportAction('Type into input to search.');
 }
 

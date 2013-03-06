@@ -2,43 +2,71 @@
 <html>
   <head>
     <meta charset='utf8' />
-    <title>IndexedDB testing</title>
+    <title>Client-side storage testing</title>
     <script type="text/javascript" src="lib/jquery-1.8.2.min.js"></script>
-    <script type="text/javascript" src="data/topics.js"></script>
     <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="indexeddb.js"></script>
-    <script type="text/javascript">
-      var idb = new IDBBackend();
-    </script>
+    <style type="text/css">
+
+      #setup {
+        margin: 1em 0;
+        border-bottom: 1px solid #333;
+      }
+
+      #setup div {
+        margin: 1em;
+      }
+
+      #setup div label {
+        display: inline-block;
+        width: 150px;
+        text-align: right;
+        padding-right: 10px;
+      }
+
+    </style>
   </head>
   <body>
-    <h1>IndexedDB testing</h1>
 
-    <div id="controls">
-      <button id="open-db" onclick="idb.init();">Open DB</button>
-      <button id="load-data" disabled="disabled" onclick="idb.loadData('topics');">Load topic data</button>
-      <button id="delete-db" disabled="disabled" onclick="idb.teardown()">Delete database</button>
+    <div id="setup">
+      <div id="backend" class="control">
+        <label>Select a backend: </label>
+        <button data-backend="indexeddb">IndexedDB</button>
+        <button data-backend="localstorage">localStorage</button>
+      </div>
+
+      <div id="controls" class="control">
+        <label>Controls: </label>
+        <button id="load-data"
+          disabled="disabled"
+          onclick="reportAction('Loading topic data'); backend.loadData('topics')">Load topic data</button>
+        <button id="delete-db"
+          disabled="disabled"
+          onclick="disableInputs(); backend.teardown()">Delete database</button>
+      </div>
+
+      <div id="search" class="control">
+        <label>Search database: </label>
+        <input id="textinput"
+          disabled="disabled"
+          oninput="backend.performSearch('topics', this.value)" />
+      </div>
     </div>
 
-    <h2>Input</h2>
-    <input disabled="disabled" id="textinput" />
-
-    <hr />
-
-    <h2>Results</h2>
     <table>
       <thead>
         <tr>
-          <th style="width: 500px;">Topic</th>
-          <th>Time</th>
+          <th style="width: 500px;">Search results</th>
+          <th>Messages</th>
         </tr>
       </thead>
       <tbody>
         <tr style="vertical-align: top">
           <td id="results"></td>
-          <td id="time"></td>
+          <td id="messages"></td>
         </tr>
       </tbody>
     </table>
+
   </body>
 </html>
