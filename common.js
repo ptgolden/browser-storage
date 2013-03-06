@@ -30,6 +30,14 @@ $(document).on('ready', function () {
       }
       break;
     case 'localstorage':
+      backend = new localStorageBackend();
+      backend.oninit = function () {
+        reportAction('Using localStorage');
+      }
+      backend.onteardown = function () {
+        reportAction('localStorage cleared');
+        backend.destroyed = true;
+      }
       break;
     }
 
