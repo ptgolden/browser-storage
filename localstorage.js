@@ -58,9 +58,6 @@ var localStorageBackend = function() {
 
     backend.cachedData[source].items.forEach(function (topic) {
       var match;
-      if (!topic.hasOwnProperty('keywords')) {
-        topic.keywords = getKeywords(topic.name);
-      }
       match = topic.keywords.filter(function(kw) {
         return kw.indexOf(lphrase) === 0;
       });
