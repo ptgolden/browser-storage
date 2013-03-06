@@ -86,6 +86,7 @@ var IDBBackend = function () {
     var start = Date.now()
       , $container = $('#results').html('')
       , firstWord = phrase.split(' ')[0].toLowerCase()
+      , results = ''
       , range
       , transaction
       , counter = 0
@@ -108,11 +109,12 @@ var IDBBackend = function () {
       .onsuccess = function (e) {
         var cursor = e.target.result;
         if (cursor && backend.currentTransaction === transaction) {
-          $container.append('<div>' + cursor.value.name + '</div>');
+          results += '<div>' + cursor.value.name + '</div>'
           counter += 1;
           cursor.continue();
         } else if (!cursor) {
           var end = Date.now(), msg;
+          $container.append(results);
           msg = counter + ' results for "' + phrase + '" in ' + (end - start) + 'ms';
           $container.prepend('<p><strong>' + msg + '</strong></p>');
           backend.currentTransaction = null;
