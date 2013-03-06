@@ -62,7 +62,7 @@ var localStorageBackend = function() {
         topic.keywords = getKeywords(topic.name);
       }
       match = topic.keywords.filter(function(kw) {
-        return kw.startsWith(lphrase);
+        return kw.indexOf(lphrase) === 0;
       });
       if (match.length > 0) {
         $container.append('<div>' + topic.name + '</div>');
