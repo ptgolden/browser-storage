@@ -28,8 +28,37 @@ $(document).on('ready', function () {
     }
 
   });
+  
+  $('#controls').on('click', '.load-data:enabled', function () {
+    var $this = $(this);
+    loadData($this.data('method'), $this.data('name'));
+    reportAction('Loading data for ' + $this.data('name'));
+  });
+
   reportAction('Select a backend to begin.');
+
 });
+
+function loadData(method, name) {
+  var request
+    , file
+
+  if (method === 'ajax') {
+    file = dataSources[name].file;
+    request = new XMLHttpRequest();
+    request.onload = function () {
+      var data = JSON.parse(this.responseText);
+      data.items.forEach(function(item) {
+        item.keywords = getAllKeywords(item, dataSources[name].keyword_fields);
+      });
+      backend.loadData(name, file, data);
+    }
+    request.open('get', dataSources[name].src);
+    request.send();
+  } else if (method === 'file') {
+    backend.loadData(name, readFiles[name].file, readFiles[name].data);
+  }
+}
 
 // Report an action, optionally with a start and end time
 function reportAction(action, start, end) {
@@ -104,8 +133,13 @@ function backendDestroyed() {
   $('#filedrop').show();
 }
 
-function enableSearch() {
-  $('#textinput').val('').prop('disabled', false);
-  reportAction('Input bound. Type to search.');
+function enableSearch(source) {
+  $('#textinput')
+    .prop('disabled', false)
+    .off()
+    .on('input', function () {
+      backend.performSearch(source, this.value);
+    });
+  reportAction('Input bound. Type to search for keywords from ' + source + '.');
 }
 

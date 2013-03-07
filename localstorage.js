@@ -12,34 +12,17 @@ var localStorageBackend = function() {
     reportAction('localStorage ready');
   }
 
-  this.loadData = function (source) {
+  this.loadData = function (name, file, data) {
     var start = Date.now()
-      , request = new XMLHttpRequest()
-      , dataSource = dataSources[source]
+      , msg
 
-    if (!dataSource) {
-      console.log('no such data source: ' + source);
-      return;
-    }
+    localStorage.setItem(name, JSON.stringify(data));
+    backend.cachedData[name] = data;
 
-    request.onload = function () {
-      var msg;
-      localStorage.setItem(source, this.responseText);
-      backend.cachedData[source] = JSON.parse(localStorage.getItem(source));
-      backend.cachedData[source].items.forEach(function (item) {
-        kwFields = dataSource.keyword_fields.map(function (field) {
-          return item[field]
-        });
-        item.keywords = buildKeywords(kwFields);
-      });
-      msg = 'Loaded ' + backend.cachedData[source].items.length + ' records from ' + dataSource.src;
-      reportAction(msg, start, Date.now());
-      enableSearch();
-    }
-    request.open('get', dataSource.src);
-    request.send();
+    msg = 'Loaded ' + data.items.length + ' records from ' + file;
+    reportAction(msg, start, Date.now());
 
-    return;
+    enableSearch(name);
   }
 
   this.performSearch = function (source, phrase) {

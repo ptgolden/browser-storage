@@ -40,46 +40,30 @@ var IDBBackend = function () {
       for (var source in dataSources) {
         createObjectStore(db, source);
       }
+      for (var source in readFiles) {
+        createObjectStore(db, source);
+      }
     }
     req.onerror = function (e) {
       console.log('Database error', e);
     }
   }
 
-  this.loadData = function (source) {
+  this.loadData = function (name, file, data) {
     var db = this.db
-      , req = new XMLHttpRequest()
-      , dataSource = dataSources[source]
+      , start = Date.now()
+      , transaction = db.transaction([name], 'readwrite')
+      , objectStore = transaction.objectStore(name)
 
-    if (!dataSource) {
-      console.log('no such data source: ' + source)
-      return;
+    transaction.oncomplete = function () {
+      var msg = 'Loaded ' + data.items.length + ' records from ' + file;
+      reportAction(msg, start, Date.now());
+      enableSearch(name);
     }
 
-    req.onload = function () {
-      var data = JSON.parse(this.responseText)
-        , start = Date.now()
-        , transaction = db.transaction([source], 'readwrite')
-        , objectStore = transaction.objectStore(source)
-
-      transaction.oncomplete = function () {
-        var msg = 'Loaded ' + data.items.length + ' records from ' + dataSource.src;
-        reportAction(msg, start, Date.now());
-        enableSearch();
-      }
-
-      data.items.forEach(function (item) {
-        var kwFields = dataSource.keyword_fields.map(function (field) {
-          return item[field];
-        });
-        item.keywords = buildKeywords(kwFields);
-        objectStore.put(item);
-      });
-
-    }
-    req.open('get', dataSource.src);
-    req.send();
-    return;
+    data.items.forEach(function (item) {
+      objectStore.put(item);
+    });
   }
 
   this.performSearch = function (source, phrase) {
@@ -99,11 +83,11 @@ var IDBBackend = function () {
     // word of the searched phrase.
     range = IDBKeyRange.bound(firstWord, firstWord + '\uffff');
 
-    transaction = backend.db.transaction(['topics']);
+    transaction = backend.db.transaction([source]);
     backend.currentTransaction = transaction;
 
     transaction
-      .objectStore('topics')
+      .objectStore(source)
       .index('keywords')
       .openCursor(range)
       .onsuccess = function (e) {
