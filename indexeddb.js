@@ -72,7 +72,7 @@ var IDBBackend = function () {
     });
   }
 
-  this.performSearch = function (source, phrase) {
+  this.performSearch = function (phrase, source, identifier) {
     var start = Date.now()
       , $container = $('#results').html('')
       , firstWord = phrase.split(' ')[0].toLowerCase()
@@ -98,7 +98,7 @@ var IDBBackend = function () {
       .onsuccess = function (e) {
         var cursor = e.target.result;
         if (cursor && backend.currentTransaction === transaction) {
-          results.push('<div>' + cursor.value.name + '</div>')
+          results.push('<div>' + cursor.value[identifier] + '</div>')
           cursor.continue();
         } else if (!cursor) {
           var msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';

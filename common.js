@@ -31,7 +31,7 @@ $(document).on('ready', function () {
   
   $('#controls').on('click', '.load-data:enabled', function () {
     var $this = $(this);
-    loadData($this.data('method'), $this.data('name'));
+    loadData($this.data('method'), $this.data('name'), $this.data('identifier'));
     reportAction('Loading data for ' + $this.data('name'));
   });
 
@@ -93,7 +93,7 @@ function getKeywords(phrase) {
     .replace(/[,'".]/, '')
     .split(/[ ]+/)
     .filter(function (token) {
-      return /^[A-Z][^ ]+/.test(token);
+      return /^[A-Za-z]{2,}/.test(token);
     })
     .map(function (kw) {
       return kw.toLowerCase()
@@ -134,11 +134,12 @@ function backendDestroyed() {
 }
 
 function enableSearch(source) {
+  var identifier = $('button[data-name="' + source + '"]').data('identifier');
   $('#textinput')
     .prop('disabled', false)
     .off()
     .on('input', function () {
-      backend.performSearch(source, this.value);
+      backend.performSearch(this.value, source, identifier);
     });
   reportAction('Input bound. Type to search for keywords from ' + source + '.');
 }
