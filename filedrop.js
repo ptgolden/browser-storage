@@ -56,6 +56,7 @@ $(document).ready(function() {
     var potentialKWFields = []
       , $kwSection = $('#choose-keywords')
       , $controlsSection = $('#controls')
+      , $identSelect = $('<select>')
 
     $kwSection
       .css('min-height', $controlsSection.innerHeight())
@@ -80,23 +81,33 @@ $(document).ready(function() {
 
     potentialKWFields.forEach(function(kw) {
       $kwSection.append('<input type="checkbox" name="' + kw + '" />' + '<span style="margin-right: 16px;">' + kw + '</span>' );
+      $identSelect.append('<option value="' + kw + '">' + kw + '</option>');
     });
 
-    $kwSection.append('<br />');
+    $kwSection.append('<br /><h3>Identifier field:</h3>');
+    $identSelect.appendTo($kwSection).find('[value="name"]').prop('selected', 'selected');
+
+    $kwSection.append('<br /><br />');
 
     $('<button>OK</button>').appendTo($kwSection)
       .one('click', function () {
-        var kwfields = $('input:checked', $kwSection).toArray().map(function (el) {
+        var kwfields
+          , identifier
+        
+        kwfields = $('input:checked', $kwSection).toArray().map(function (el) {
           return el.name;
         });
-        addDataSource(filename, data, kwfields);
+        identifier = $('select', $kwSection).val() || 'name';
+        addDataSource(filename, data, kwfields, identifier);
       });
 
-    $('<button>Cancel</button>').appendTo($kwSection)
+    $('<button>Cancel</button>').appendTo($kwSection);
+
+    $kwSection.append('<br />');
 
   }
 
-  function addDataSource(filename, data, kwfields) {
+  function addDataSource(filename, data, kwfields, identifier) {
     var name = filename.replace(/\.json$/, '').replace(/[^\w]/, '_')
       , btn
 
@@ -114,11 +125,11 @@ $(document).ready(function() {
 
     readFiles[name] = {
       'file': filename,
-      'data': data
+      'data': data,
     }
 
     btn = '<button class="load-data" disabled="disabled" '
-      + 'data-method="file" data-name="' + name + '" >'
+      + 'data-method="file" data-name="' + name + '" data-identifier="' + identifier + '">'
       + filename + '</button>';
 
     $('#data-sources').append(btn);

@@ -1,0 +1,55 @@
+section { margin-left: 1em; margin-right: 1em; }
+section:not(:last-of-type) { margin: 1em; border-bottom: 1px solid #333; }
+
+.hide { display: none; }
+
+#setup div { margin: 1em 1em 1em 0; } 
+#setup div label {
+  display: inline-block;
+  width: 150px;
+  text-align: right;
+  padding-right: 10px;
+}
+
+#filedrop {
+  margin: 1em 3em;
+  padding: 12px;
+  height: 75px;
+  border: 2px solid #aaa;
+  border-radius: 12px;
+  text-align: center;
+}
+  #filedrop::after {
+  content: 'Drop your own .json file to test with here.\aRequired format: {"items": [{"name": "x", "foo": "bar", ... }, ... ]}';
+  white-space: pre;
+  line-height: 24px;
+  position: relative;
+  top: 15%;
+}
+#filedrop.drop-active {
+  background: yellowgreen;
+  padding: 14px;
+  border: none;
+}
+
+#messages > div { margin-bottom: 4px; }
+#messages > div:first-of-type:before {
+  content: ">";
+  display: inline-block;
+  position: relative;
+  width: 0;
+  left: -16px;
+}
+#messages .time { color: green; }
+
+#backend > div { display: inline-block; margin: 0; }
+#selected-backend { font-weight: bold; }
+
+#results { max-height: 480px; overflow-y: scroll; padding: 0 12px; }
+#results > p { margin-top: 0px; }
+.search-matched { font-weight: bold; }
+.search-result { padding: 3px 10px; }
+
+.grid > [class*="-columns"] { float: left; margin-right: 32px; }
+.grid > div.two-columns { width: 40%; }
+.grid:after { content: ""; display: table; clear: both; }

@@ -25,7 +25,7 @@ var localStorageBackend = function() {
     enableSearch(name);
   }
 
-  this.performSearch = function (source, phrase) {
+  this.performSearch = function (phrase, source, identifier) {
     var start = Date.now()
       , lphrase = phrase.toLowerCase()
       , $container = $('#results').html('')
@@ -36,13 +36,13 @@ var localStorageBackend = function() {
       return;
     }
 
-    backend.cachedData[source].items.forEach(function (topic) {
+    backend.cachedData[source].items.forEach(function (item) {
       var match;
-      match = topic.keywords.filter(function(kw) {
+      match = item.keywords.filter(function(kw) {
         return kw.indexOf(lphrase) === 0;
       });
       if (match.length > 0) {
-        results.push('<div>' + topic.name + '</div>');
+        results.push(makeSearchResult(phrase, item, identifier));
       }
     });
 
