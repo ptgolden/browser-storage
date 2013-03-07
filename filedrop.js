@@ -84,9 +84,10 @@ $(document).ready(function() {
       $identSelect.append('<option value="' + kw + '">' + kw + '</option>');
     });
 
+    $kwSection.append('<br /><h3>Identifier field:</h3>');
     $identSelect.appendTo($kwSection).find('[value="name"]').prop('selected', 'selected');
 
-    $kwSection.append('<br />');
+    $kwSection.append('<br /><br />');
 
     $('<button>OK</button>').appendTo($kwSection)
       .one('click', function () {
@@ -100,7 +101,9 @@ $(document).ready(function() {
         addDataSource(filename, data, kwfields, identifier);
       });
 
-    $('<button>Cancel</button>').appendTo($kwSection)
+    $('<button>Cancel</button>').appendTo($kwSection);
+
+    $kwSection.append('<br />');
 
   }
 

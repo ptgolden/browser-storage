@@ -34,8 +34,8 @@ $(document).on('ready', function () {
   
   $('#controls').on('click', '.load-data:enabled', function () {
     var $this = $(this);
-    loadData($this.data('method'), $this.data('name'), $this.data('identifier'));
     reportAction('Loading data for ' + $this.data('name'));
+    loadData($this.data('method'), $this.data('name'), $this.data('identifier'));
   });
 
   reportAction('Select a backend to begin.');
