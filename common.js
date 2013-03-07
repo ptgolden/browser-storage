@@ -1,12 +1,6 @@
 var backend
   , dataSources
-
-dataSources = {
-  'topics': {
-    'src': 'data/topics.json',
-    'keyword_fields': ['name', 'aliases']
-  }
-}
+  , readFiles = {}
 
 $(document).on('ready', function () {
   $('#delete-db').on('click', function() {
@@ -57,6 +51,13 @@ function reportAction(action, start, end) {
   return $action;
 }
 
+dataSources = {
+  'topics': {
+    'src': 'data/topics.json',
+    'keyword_fields': ['name', 'aliases']
+  }
+}
+
 // Get all capitalized words of more than one letter from a phrase.
 function getKeywords(phrase) {
   var keywords = phrase
@@ -75,15 +76,14 @@ function isStrOrArr(thing) {
   return (typeof(thing) === 'string' || Array.isArray(thing));
 }
 
-function buildKeywords(arr) {
+function getAllKeywords(item, kwfields) {
   var keywords = [];
-  arr.forEach(function(grp) {
-    var words;
-    if (grp.length === 0 || !isStrOrArr(grp)) {
+  kwfields.forEach(function (key) {
+    var field = item[key];
+    if (field.length === 0 || !isStrOrArr(field)) {
       return;
     }
-    words = Array.isArray(grp) ? grp.slice(0) : [grp];
-    words.forEach(function (word) {
+    [].concat(field).forEach(function (word) {
       keywords = keywords.concat(getKeywords(word));
     });
   });
@@ -94,12 +94,14 @@ function backendSelected(backend) {
   $('#backend-select').hide();
   $('#selected-backend').show().find('span').html(backend);
   $('.load-data, #delete-db').prop('disabled', false);
+  $('#filedrop').hide();
 }
 
 function backendDestroyed() {
   $('#backend-select').show();
   $('#selected-backend').hide().find('span').html('');
   $('.load-data, #delete-db, #textinput').prop('disabled', true);
+  $('#filedrop').show();
 }
 
 function enableSearch() {
