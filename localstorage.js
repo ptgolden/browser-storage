@@ -1,56 +1,36 @@
 var localStorageBackend = function() {
   var backend = this;
 
-  this.oninit = undefined;
-  this.onteardown = undefined;
-  this.destroyed = false;
-
   this.cachedData = {};
+  this.oninit = undefined;
+  this.ondestroyed = undefined;
 
   this.init = function () {
     if (backend.oninit) {
       backend.oninit.apply(backend);
     }
+    reportAction('localStorage ready');
   }
 
-  this.loadData = function (source) {
+  this.loadData = function (name, file, data) {
     var start = Date.now()
-      , request = new XMLHttpRequest()
-      , dataSource = dataSources[source]
+      , msg
 
-    if (!dataSource) {
-      console.log('no such data source: ' + source);
-      return;
-    }
+    localStorage.setItem(name, JSON.stringify(data));
+    backend.cachedData[name] = data;
 
-    request.onload = function () {
-      var msg;
-      localStorage.setItem(source, this.responseText);
-      backend.cachedData[source] = JSON.parse(localStorage.getItem(source));
-      backend.cachedData[source].items.forEach(function (item) {
-        kwFields = dataSource.keyword_fields.map(function (field) {
-          return item[field]
-        });
-        item.keywords = buildKeywords(kwFields);
-      });
-      msg = 'Loaded ' + backend.cachedData[source].items.length + ' records from ' + dataSource.src;
-      reportAction(msg, start, Date.now());
-      enableSearch();
-    }
-    request.open('get', dataSource.src);
-    request.send();
+    msg = 'Loaded ' + data.items.length + ' records from ' + file;
+    reportAction(msg, start, Date.now());
 
-    return;
+    enableSearch(name);
   }
 
   this.performSearch = function (source, phrase) {
     var start = Date.now()
       , lphrase = phrase.toLowerCase()
       , $container = $('#results').html('')
-      , results = ''
+      , results = []
       , msg
-      , raw
-      , counter = 0
 
     if (!lphrase || lphrase.length < 2) {
       return;
@@ -62,13 +42,12 @@ var localStorageBackend = function() {
         return kw.indexOf(lphrase) === 0;
       });
       if (match.length > 0) {
-        results += '<div>' + topic.name + '</div>';
-        counter += 1
+        results.push('<div>' + topic.name + '</div>');
       }
     });
 
-    $container.append(results);
-    msg = counter + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
+    $container.append(results.join(''));
+    msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
     $container.prepend('<p><strong>' + msg + '</strong></p>');
   }
 
@@ -79,6 +58,7 @@ var localStorageBackend = function() {
     if (backend.onteardown) {
       backend.onteardown.apply(backend);
     }
+    reportAction('localStorage cleared');
   }
 
   return this;

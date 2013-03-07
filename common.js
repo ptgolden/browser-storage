@@ -1,43 +1,24 @@
 var backend
   , dataSources
-
-dataSources = {
-  'topics': {
-    'src': 'data/topics.json',
-    'keyword_fields': ['name', 'aliases']
-  }
-}
+  , readFiles = {}
 
 $(document).on('ready', function () {
-  $('#backend button').on('click', function () {
-    var selectedBackend = $(this).data('backend');
-    if (backend && !backend.destroyed) {
-      backend.teardown();
-    }
-
+  $('#delete-db').on('click', function() {
+    backend.teardown();
     backendDestroyed();
+  });
+
+  $('#backend-select').on('click', 'button', function () {
+    var selectedBackend = $(this).data('backend');
+
     backend = null;
 
     switch (selectedBackend) {
     case 'IndexedDB':
       backend = new IDBBackend();
-      backend.oninit = function () {
-        reportAction('IndexedDB opened');
-      }
-      backend.onteardown = function () {
-        reportAction('IndexedDB deleted');
-        backend.destroyed = true;
-      }
       break;
     case 'localStorage':
       backend = new localStorageBackend();
-      backend.oninit = function () {
-        reportAction('Using localStorage');
-      }
-      backend.onteardown = function () {
-        reportAction('localStorage cleared');
-        backend.destroyed = true;
-      }
       break;
     }
 
@@ -47,8 +28,37 @@ $(document).on('ready', function () {
     }
 
   });
+  
+  $('#controls').on('click', '.load-data:enabled', function () {
+    var $this = $(this);
+    loadData($this.data('method'), $this.data('name'));
+    reportAction('Loading data for ' + $this.data('name'));
+  });
+
   reportAction('Select a backend to begin.');
+
 });
+
+function loadData(method, name) {
+  var request
+    , file
+
+  if (method === 'ajax') {
+    file = dataSources[name].file;
+    request = new XMLHttpRequest();
+    request.onload = function () {
+      var data = JSON.parse(this.responseText);
+      data.items.forEach(function(item) {
+        item.keywords = getAllKeywords(item, dataSources[name].keyword_fields);
+      });
+      backend.loadData(name, file, data);
+    }
+    request.open('get', dataSources[name].src);
+    request.send();
+  } else if (method === 'file') {
+    backend.loadData(name, readFiles[name].file, readFiles[name].data);
+  }
+}
 
 // Report an action, optionally with a start and end time
 function reportAction(action, start, end) {
@@ -70,6 +80,13 @@ function reportAction(action, start, end) {
   return $action;
 }
 
+dataSources = {
+  'topics': {
+    'src': 'data/topics.json',
+    'keyword_fields': ['name', 'aliases']
+  }
+}
+
 // Get all capitalized words of more than one letter from a phrase.
 function getKeywords(phrase) {
   var keywords = phrase
@@ -88,15 +105,14 @@ function isStrOrArr(thing) {
   return (typeof(thing) === 'string' || Array.isArray(thing));
 }
 
-function buildKeywords(arr) {
+function getAllKeywords(item, kwfields) {
   var keywords = [];
-  arr.forEach(function(grp) {
-    var words;
-    if (grp.length === 0 || !isStrOrArr(grp)) {
+  kwfields.forEach(function (key) {
+    var field = item[key];
+    if (field.length === 0 || !isStrOrArr(field)) {
       return;
     }
-    words = Array.isArray(grp) ? grp.slice(0) : [grp];
-    words.forEach(function (word) {
+    [].concat(field).forEach(function (word) {
       keywords = keywords.concat(getKeywords(word));
     });
   });
@@ -104,19 +120,26 @@ function buildKeywords(arr) {
 }
 
 function backendSelected(backend) {
-  $('#backend-choices').hide();
+  $('#backend-select').hide();
   $('#selected-backend').show().find('span').html(backend);
-  $('#load-data, #delete-db').prop('disabled', false);
+  $('.load-data, #delete-db').prop('disabled', false);
+  $('#filedrop').hide();
 }
 
 function backendDestroyed() {
-  $('#backend-choices').show();
+  $('#backend-select').show();
   $('#selected-backend').hide().find('span').html('');
-  $('#load-data, #delete-db, #textinput').prop('disabled', true);
+  $('.load-data, #delete-db, #textinput').prop('disabled', true);
+  $('#filedrop').show();
 }
 
-function enableSearch() {
-  $('#textinput').val('').prop('disabled', false);
-  reportAction('Input bound. Type to search.');
+function enableSearch(source) {
+  $('#textinput')
+    .prop('disabled', false)
+    .off()
+    .on('input', function () {
+      backend.performSearch(source, this.value);
+    });
+  reportAction('Input bound. Type to search for keywords from ' + source + '.');
 }
 

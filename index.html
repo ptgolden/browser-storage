@@ -3,12 +3,19 @@
   <head>
     <meta charset='utf8' />
     <title>Client-side storage testing</title>
+
     <script type="text/javascript" src="lib/jquery-1.8.2.min.js"></script>
+
     <script type="text/javascript" src="common.js"></script>
+    <script type="text/javascript" src="filedrop.js"></script>
     <script type="text/javascript" src="indexeddb.js"></script>
     <script type="text/javascript" src="localstorage.js"></script>
+
     <style type="text/css">
-      #setup { margin: 1em 0; border-bottom: 1px solid #333; }
+      section:not(:last-of-type) { margin: 1em 0; border-bottom: 1px solid #333; }
+
+      .hide { display: none; }
+
       #setup div { margin: 1em; } 
       #setup div label {
         display: inline-block;
@@ -17,68 +24,97 @@
         padding-right: 10px;
       }
 
+      #filedrop {
+        margin: 1em 3em;
+        padding: 12px;
+        height: 75px;
+        border: 2px solid #aaa;
+        border-radius: 12px;
+        text-align: center;
+      }
+      #filedrop::after {
+        content: 'Drop your own .json file to test with here.\aRequired format: {"items": [{"foo": "bar", ... }, ... ]}';
+        white-space: pre;
+        line-height: 24px;
+        position: relative;
+        top: 15%;
+      }
+      #filedrop.drop-active {
+        background: yellowgreen;
+        padding: 14px;
+        border: none;
+      }
+
       #messages > div { margin-bottom: 4px; }
       #messages > div:first-of-type:before {
         content: ">";
-        display: block;
-        margin-top: -1em;
+        display: inline-block;
         position: relative;
-        top: 1.2em;
+        width: 0;
         left: -16px;
       }
-      #messages .time {
-        color: green;
-      }
+      #messages .time { color: green; }
+
       #backend > div { display: inline-block; margin: 0; }
       #selected-backend { font-weight: bold; }
+
+      #results > p { margin-top: 0px; }
+
+      .grid > [class*="-columns"] { float: left; }
+      .grid > div.two-columns { width: 45%; }
+      .grid > div.three-columns { width: 30%; }
+      .grid:after { content: ""; display: table; clear: both; }
     </style>
   </head>
   <body>
 
-    <div id="setup">
-      <div id="backend">
-        <label>Backend: </label>
-        <div id="backend-choices">
-          <button data-backend="IndexedDB">IndexedDB</button>
-          <button data-backend="localStorage">localStorage</button>
+    <section id="controls" class="grid">
+      <div id="setup" class="two-columns">
+
+        <div id="backend">
+          <label>Backend: </label>
+          <div id="backend-select">
+            <button data-backend="IndexedDB">IndexedDB</button>
+            <button data-backend="localStorage">localStorage</button>
+          </div>
+          <div id="selected-backend" style="display: none;">
+            <span></span>
+            <button id="delete-db" disabled="disabled">Destroy</button>
+          </div>
         </div>
-        <div id="selected-backend" style="display: none;">
-          <span></span>
-          <button id="delete-db"
-            disabled="disabled"
-            onclick="backendDestroyed(); backend.teardown()">Destroy</button>
+
+        <div id="data-sources">
+          <label>Data: </label>
+          <button class="load-data" data-method="ajax" data-name="topics" disabled="disabled">EN topics</button>
+        </div>
+
+        <div id="search">
+          <label>Search: </label>
+          <input id="textinput" disabled="disabled" />
         </div>
       </div>
 
-      <div id="controls">
-        <label>Data: </label>
-        <button id="load-data"
-          disabled="disabled"
-          onclick="reportAction('Loading topic data'); backend.loadData('topics')">EN topics</button>
+      <div id="filedrop" class="two-columns">
       </div>
 
-      <div id="search">
-        <label>Search: </label>
-        <input id="textinput"
-          disabled="disabled"
-          oninput="backend.performSearch('topics', this.value)" />
-      </div>
-    </div>
+    </section>
 
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 500px;">Search results</th>
-          <th>Messages</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr style="vertical-align: top">
-          <td id="results"></td>
-          <td id="messages"></td>
-        </tr>
-      </tbody>
-    </table>
+    <section id="choose-keywords" class="hide">
+    </section>
+
+
+    <section class="grid">
+      <div class="two-columns">
+        &nbsp;
+        <div id="results">
+        </div>
+      </div>
+      <div class="two-columns">
+        &nbsp;
+        <div id="messages">
+        </div>
+      </div>
+    </section>
 
   </body>
 </html>

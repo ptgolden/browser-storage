@@ -1,7 +1,7 @@
-var IDBBackend = function () {
-  var backend = this
-    , indexedDB
-    , IDBKeyRange
+var indexedDB
+  , IDBKeyRange
+  , IDBName = 'idb_test'
+  , IDBVersion = 1
 
   indexedDB = window.indexedDB
     || window.mozIndexedDB
@@ -10,6 +10,11 @@ var IDBBackend = function () {
   IDBKeyRange = window.IDBKeyRange
     || window.webkitIDBKeyRange
     || window.msIDBKeyRange;
+
+indexedDB.deleteDatabase(IDBName);
+
+var IDBBackend = function () {
+  var backend = this;
 
   function createObjectStore(db, source) {
     var objectStore = db.createObjectStore(source, {
@@ -25,19 +30,23 @@ var IDBBackend = function () {
   this.db = null;
   this.oninit = undefined;
   this.ondestroyed = undefined;
-  this.destroyed = false;
 
   this.init = function () {
-    var req = indexedDB.open('idb_test');
+    var req = indexedDB.open(IDBName, IDBVersion);
     req.onsuccess = function (e) {
+      IDBVersion += 1;
       backend.db = this.result;
       if (backend.oninit) {
         backend.oninit.apply(backend);
       }
+      reportAction('IndexedDB ' + IDBName + ' opened.');
     }
     req.onupgradeneeded = function (e) {
       var db = this.result;
       for (var source in dataSources) {
+        createObjectStore(db, source);
+      }
+      for (var source in readFiles) {
         createObjectStore(db, source);
       }
     }
@@ -46,50 +55,30 @@ var IDBBackend = function () {
     }
   }
 
-  this.loadData = function (source) {
+  this.loadData = function (name, file, data) {
     var db = this.db
-      , req = new XMLHttpRequest()
-      , dataSource = dataSources[source]
+      , start = Date.now()
+      , transaction = db.transaction([name], 'readwrite')
+      , objectStore = transaction.objectStore(name)
 
-    if (!dataSource) {
-      console.log('no such data source: ' + source)
-      return;
+    transaction.oncomplete = function () {
+      var msg = 'Loaded ' + data.items.length + ' records from ' + file;
+      reportAction(msg, start, Date.now());
+      enableSearch(name);
     }
 
-    req.onload = function () {
-      var data = JSON.parse(this.responseText)
-        , start = Date.now()
-        , transaction = db.transaction([source], 'readwrite')
-        , objectStore = transaction.objectStore(source)
-
-      transaction.oncomplete = function () {
-        var msg = 'Loaded ' + data.items.length + ' records from ' + dataSource.src;
-        reportAction(msg, start, Date.now());
-        enableSearch();
-      }
-
-      data.items.forEach(function (item) {
-        var kwFields = dataSource.keyword_fields.map(function (field) {
-          return item[field];
-        });
-        item.keywords = buildKeywords(kwFields);
-        objectStore.put(item);
-      });
-
-    }
-    req.open('get', dataSource.src);
-    req.send();
-    return;
+    data.items.forEach(function (item) {
+      objectStore.put(item);
+    });
   }
 
   this.performSearch = function (source, phrase) {
     var start = Date.now()
       , $container = $('#results').html('')
       , firstWord = phrase.split(' ')[0].toLowerCase()
-      , results = ''
+      , results = []
       , range
       , transaction
-      , counter = 0
 
     if (!firstWord || firstWord.length < 2) {
       return;
@@ -99,23 +88,21 @@ var IDBBackend = function () {
     // word of the searched phrase.
     range = IDBKeyRange.bound(firstWord, firstWord + '\uffff');
 
-    transaction = backend.db.transaction(['topics']);
+    transaction = backend.db.transaction([source]);
     backend.currentTransaction = transaction;
 
     transaction
-      .objectStore('topics')
+      .objectStore(source)
       .index('keywords')
       .openCursor(range)
       .onsuccess = function (e) {
         var cursor = e.target.result;
         if (cursor && backend.currentTransaction === transaction) {
-          results += '<div>' + cursor.value.name + '</div>'
-          counter += 1;
+          results.push('<div>' + cursor.value.name + '</div>')
           cursor.continue();
         } else if (!cursor) {
-          var end = Date.now(), msg;
-          $container.append(results);
-          msg = counter + ' results for "' + phrase + '" in ' + (end - start) + 'ms';
+          var msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
+          $container.append(results.join(''));
           $container.prepend('<p><strong>' + msg + '</strong></p>');
           backend.currentTransaction = null;
         }
@@ -123,7 +110,8 @@ var IDBBackend = function () {
   }
 
   this.teardown = function () {
-    var req = indexedDB.deleteDatabase('idb_test').onsuccess = function () {
+    indexedDB.deleteDatabase('idb_test').onsuccess = function () {
+      reportAction('IndexedDB ' + IDBName + ' deleted.');
       if (backend.onteardown) {
         backend.onteardown.apply(backend);
       }
