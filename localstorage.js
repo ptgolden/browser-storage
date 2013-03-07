@@ -42,7 +42,7 @@ var localStorageBackend = function() {
         return kw.indexOf(lphrase) === 0;
       });
       if (match.length > 0) {
-        results.push('<div>' + item[identifier] + '</div>');
+        results.push(makeSearchResult(phrase, item, identifier));
       }
     });
 

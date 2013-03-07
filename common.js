@@ -1,6 +1,11 @@
-var backend
-  , dataSources
+var backend = null
   , readFiles = {}
+  , dataSources = {
+      'topics': {
+        'src': 'data/topics.json',
+        'keyword_fields': ['name', 'aliases']
+      }
+    }
 
 $(document).on('ready', function () {
   $('#delete-db').on('click', function() {
@@ -10,7 +15,6 @@ $(document).on('ready', function () {
 
   $('#backend-select').on('click', 'button', function () {
     var selectedBackend = $(this).data('backend');
-
     backend = null;
 
     switch (selectedBackend) {
@@ -26,7 +30,6 @@ $(document).on('ready', function () {
       backend.init();
       backendSelected(selectedBackend);
     }
-
   });
   
   $('#controls').on('click', '.load-data:enabled', function () {
@@ -36,7 +39,6 @@ $(document).on('ready', function () {
   });
 
   reportAction('Select a backend to begin.');
-
 });
 
 function loadData(method, name) {
@@ -78,45 +80,6 @@ function reportAction(action, start, end) {
   }
 
   return $action;
-}
-
-dataSources = {
-  'topics': {
-    'src': 'data/topics.json',
-    'keyword_fields': ['name', 'aliases']
-  }
-}
-
-// Get all capitalized words of more than one letter from a phrase.
-function getKeywords(phrase) {
-  var keywords = phrase
-    .replace(/[,'".]/, '')
-    .split(/[ ]+/)
-    .filter(function (token) {
-      return /^[A-Za-z]{2,}/.test(token);
-    })
-    .map(function (kw) {
-      return kw.toLowerCase()
-    });
-  return keywords;
-}
-
-function isStrOrArr(thing) {
-  return (typeof(thing) === 'string' || Array.isArray(thing));
-}
-
-function getAllKeywords(item, kwfields) {
-  var keywords = [];
-  kwfields.forEach(function (key) {
-    var field = item[key];
-    if (field.length === 0 || !isStrOrArr(field)) {
-      return;
-    }
-    [].concat(field).forEach(function (word) {
-      keywords = keywords.concat(getKeywords(word));
-    });
-  });
-  return keywords;
 }
 
 function backendSelected(backend) {

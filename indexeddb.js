@@ -98,7 +98,7 @@ var IDBBackend = function () {
       .onsuccess = function (e) {
         var cursor = e.target.result;
         if (cursor && backend.currentTransaction === transaction) {
-          results.push('<div>' + cursor.value[identifier] + '</div>')
+          results.push(makeSearchResult(phrase, cursor.value, identifier))
           cursor.continue();
         } else if (!cursor) {
           var msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
