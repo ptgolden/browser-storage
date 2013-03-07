@@ -37,16 +37,13 @@ $(document).ready(function() {
     if (files.length > 1) {
       reportAction('Only drop one file at a time.');
       return;
-    } else if (!file.type.match(/application\/json/)) {
-      reportAction('File must have .json extension');
-      return;
     }
 
     reader.onload = function (e) {
       try {
         data = JSON.parse(e.target.result);
       } catch (error) {
-        reportAction('Could not parse json file');
+        reportAction('Could not parse file as JSON.');
       }
       if (data) {
         chooseKeywordFields(file.name, data);
@@ -80,9 +77,12 @@ $(document).ready(function() {
     });
 
     $kwSection.html('<h3>Choose keyword fields for ' + filename + '</h3>');
+
     potentialKWFields.forEach(function(kw) {
-      $kwSection.append('<input type="checkbox" name="' + kw + '" />' + kw + '<br />');
+      $kwSection.append('<input type="checkbox" name="' + kw + '" />' + '<span style="margin-right: 16px;">' + kw + '</span>' );
     });
+
+    $kwSection.append('<br />');
 
     $('<button>OK</button>').appendTo($kwSection)
       .one('click', function () {
