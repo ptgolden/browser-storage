@@ -29,10 +29,8 @@ var localStorageBackend = function() {
     var start = Date.now()
       , lphrase = phrase.toLowerCase()
       , $container = $('#results').html('')
-      , results = ''
+      , results = []
       , msg
-      , raw
-      , counter = 0
 
     if (!lphrase || lphrase.length < 2) {
       return;
@@ -44,13 +42,12 @@ var localStorageBackend = function() {
         return kw.indexOf(lphrase) === 0;
       });
       if (match.length > 0) {
-        results += '<div>' + topic.name + '</div>';
-        counter += 1
+        results.push('<div>' + topic.name + '</div>');
       }
     });
 
-    $container.append(results);
-    msg = counter + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
+    $container.append(results.join(''));
+    msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
     $container.prepend('<p><strong>' + msg + '</strong></p>');
   }
 

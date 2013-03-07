@@ -76,10 +76,9 @@ var IDBBackend = function () {
     var start = Date.now()
       , $container = $('#results').html('')
       , firstWord = phrase.split(' ')[0].toLowerCase()
-      , results = ''
+      , results = []
       , range
       , transaction
-      , counter = 0
 
     if (!firstWord || firstWord.length < 2) {
       return;
@@ -99,13 +98,11 @@ var IDBBackend = function () {
       .onsuccess = function (e) {
         var cursor = e.target.result;
         if (cursor && backend.currentTransaction === transaction) {
-          results += '<div>' + cursor.value.name + '</div>'
-          counter += 1;
+          results.push('<div>' + cursor.value.name + '</div>')
           cursor.continue();
         } else if (!cursor) {
-          var end = Date.now(), msg;
-          $container.append(results);
-          msg = counter + ' results for "' + phrase + '" in ' + (end - start) + 'ms';
+          var msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
+          $container.append(results.join(''));
           $container.prepend('<p><strong>' + msg + '</strong></p>');
           backend.currentTransaction = null;
         }
