@@ -48,6 +48,7 @@
 
     <section class="grid">
       <div id="setup" class="two-columns">
+
         <div id="backend">
           <label>Backend: </label>
           <div id="backend-choices">
@@ -56,24 +57,18 @@
           </div>
           <div id="selected-backend" style="display: none;">
             <span></span>
-            <button id="delete-db"
-              disabled="disabled"
-              onclick="backendDestroyed(); backend.teardown()">Destroy</button>
+            <button id="delete-db" disabled="disabled">Destroy</button>
           </div>
         </div>
 
-        <div id="controls">
+        <div id="data-sources">
           <label>Data: </label>
-          <button id="load-data"
-            disabled="disabled"
-            onclick="reportAction('Loading topic data'); backend.loadData('topics')">EN topics</button>
+          <button class="load-data" data-method="ajax" data-name="topics" disabled="disabled">EN topics</button>
         </div>
 
         <div id="search">
           <label>Search: </label>
-          <input id="textinput"
-            disabled="disabled"
-            oninput="backend.performSearch('topics', this.value)" />
+          <input id="textinput" disabled="disabled" />
         </div>
       </div>
     </section>

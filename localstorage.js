@@ -1,16 +1,15 @@
 var localStorageBackend = function() {
   var backend = this;
 
-  this.oninit = undefined;
-  this.onteardown = undefined;
-  this.destroyed = false;
-
   this.cachedData = {};
+  this.oninit = undefined;
+  this.ondestroyed = undefined;
 
   this.init = function () {
     if (backend.oninit) {
       backend.oninit.apply(backend);
     }
+    reportAction('localStorage ready');
   }
 
   this.loadData = function (source) {
@@ -79,6 +78,7 @@ var localStorageBackend = function() {
     if (backend.onteardown) {
       backend.onteardown.apply(backend);
     }
+    reportAction('localStorage cleared');
   }
 
   return this;

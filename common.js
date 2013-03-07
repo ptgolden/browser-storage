@@ -9,35 +9,22 @@ dataSources = {
 }
 
 $(document).on('ready', function () {
-  $('#backend button').on('click', function () {
-    var selectedBackend = $(this).data('backend');
-    if (backend && !backend.destroyed) {
-      backend.teardown();
-    }
-
+  $('#delete-db').on('click', function() {
+    backend.teardown();
     backendDestroyed();
+  });
+
+  $('#backend-select').on('click', 'button', function () {
+    var selectedBackend = $(this).data('backend');
+
     backend = null;
 
     switch (selectedBackend) {
     case 'IndexedDB':
       backend = new IDBBackend();
-      backend.oninit = function () {
-        reportAction('IndexedDB opened');
-      }
-      backend.onteardown = function () {
-        reportAction('IndexedDB deleted');
-        backend.destroyed = true;
-      }
       break;
     case 'localStorage':
       backend = new localStorageBackend();
-      backend.oninit = function () {
-        reportAction('Using localStorage');
-      }
-      backend.onteardown = function () {
-        reportAction('localStorage cleared');
-        backend.destroyed = true;
-      }
       break;
     }
 
@@ -104,15 +91,15 @@ function buildKeywords(arr) {
 }
 
 function backendSelected(backend) {
-  $('#backend-choices').hide();
+  $('#backend-select').hide();
   $('#selected-backend').show().find('span').html(backend);
-  $('#load-data, #delete-db').prop('disabled', false);
+  $('.load-data, #delete-db').prop('disabled', false);
 }
 
 function backendDestroyed() {
-  $('#backend-choices').show();
+  $('#backend-select').show();
   $('#selected-backend').hide().find('span').html('');
-  $('#load-data, #delete-db, #textinput').prop('disabled', true);
+  $('.load-data, #delete-db, #textinput').prop('disabled', true);
 }
 
 function enableSearch() {

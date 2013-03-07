@@ -25,7 +25,6 @@ var IDBBackend = function () {
   this.db = null;
   this.oninit = undefined;
   this.ondestroyed = undefined;
-  this.destroyed = false;
 
   this.init = function () {
     var req = indexedDB.open('idb_test');
@@ -34,6 +33,7 @@ var IDBBackend = function () {
       if (backend.oninit) {
         backend.oninit.apply(backend);
       }
+      reportAction('IndexedDB ' + IDBName + ' opened.');
     }
     req.onupgradeneeded = function (e) {
       var db = this.result;
@@ -123,7 +123,8 @@ var IDBBackend = function () {
   }
 
   this.teardown = function () {
-    var req = indexedDB.deleteDatabase('idb_test').onsuccess = function () {
+    indexedDB.deleteDatabase('idb_test').onsuccess = function () {
+      reportAction('IndexedDB ' + IDBName + ' deleted.');
       if (backend.onteardown) {
         backend.onteardown.apply(backend);
       }
