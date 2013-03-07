@@ -1,7 +1,7 @@
-var IDBBackend = function () {
-  var backend = this
-    , indexedDB
-    , IDBKeyRange
+var indexedDB
+  , IDBKeyRange
+  , IDBName = 'idb_test'
+  , IDBVersion = 1
 
   indexedDB = window.indexedDB
     || window.mozIndexedDB
@@ -10,6 +10,11 @@ var IDBBackend = function () {
   IDBKeyRange = window.IDBKeyRange
     || window.webkitIDBKeyRange
     || window.msIDBKeyRange;
+
+indexedDB.deleteDatabase(IDBName);
+
+var IDBBackend = function () {
+  var backend = this;
 
   function createObjectStore(db, source) {
     var objectStore = db.createObjectStore(source, {
@@ -27,8 +32,9 @@ var IDBBackend = function () {
   this.ondestroyed = undefined;
 
   this.init = function () {
-    var req = indexedDB.open('idb_test');
+    var req = indexedDB.open(IDBName, IDBVersion);
     req.onsuccess = function (e) {
+      IDBVersion += 1;
       backend.db = this.result;
       if (backend.oninit) {
         backend.oninit.apply(backend);
