@@ -3,12 +3,17 @@
   <head>
     <meta charset='utf8' />
     <title>Client-side storage testing</title>
+
     <script type="text/javascript" src="lib/jquery-1.8.2.min.js"></script>
+
     <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="indexeddb.js"></script>
     <script type="text/javascript" src="localstorage.js"></script>
+
     <style type="text/css">
       section:not(:last-of-type) { margin: 1em 0; border-bottom: 1px solid #333; }
+
+      .hide { display: none; }
 
       #setup div { margin: 1em; } 
       #setup div label {
@@ -21,10 +26,9 @@
       #messages > div { margin-bottom: 4px; }
       #messages > div:first-of-type:before {
         content: ">";
-        display: block;
-        margin-top: -1em;
+        display: inline-block;
         position: relative;
-        top: 1.2em;
+        width: 0;
         left: -16px;
       }
       #messages .time { color: green; }
@@ -34,7 +38,7 @@
 
       #results > p { margin-top: 0px; }
 
-      .grid > [class$="-columns"] { float: left; }
+      .grid > [class*="-columns"] { float: left; }
       .grid > div.two-columns { width: 45%; }
       .grid > div.three-columns { width: 30%; }
       .grid:after { content: ""; display: table; clear: both; }
