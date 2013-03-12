@@ -68,48 +68,50 @@ var IDBBackend = function () {
     });
   }
 
-  this.performSearch = function (phrase, source, identifier) {
+  this.performSearch = function (source, phrase, success) {
     var start = Date.now()
-      , $container = $('#results').html('')
-      , firstWord = phrase.split(' ')[0].toLowerCase()
-      , results = []
+      , firstWord = phrase.trim().split(/\s/)[0].toLowerCase()
+      , results = new SearchResults(source, phrase)
       , range
       , transaction
+      , req
+      , vals = []
+      , keys = []
 
     if (backend.currentTransaction !== null) {
       backend.currentTransaction.abort();
       backend.currentTransaction = null;
     }
 
-    if (!firstWord || firstWord.length < 2) {
-      return;
-    }
-
-    // Search the keyword index for all those words that begin with the first
-    // word of the searched phrase.
-    range = IDBKeyRange.bound(firstWord, firstWord + '\uffff');
+    if (!firstWord.length) { return; }
 
     transaction = backend.db.transaction([source]);
     backend.currentTransaction = transaction;
 
-    var req = transaction.objectStore(source).index('keywords').openCursor(range);
+    // Search the keyword index for all those words that begin with the first
+    // word of the searched phrase.
+    range = IDBKeyRange.bound(firstWord, firstWord + '\uffff');
+    req = transaction.objectStore(source).index('keywords').openCursor(range);
     req.onerror = function (e) {
-      if (e.target.error.name === 'AbortError') {
-        e.preventDefault();
-      }
+      // Request is aborted if another search is started before it's finished
+      if (e.target.error.name === 'AbortError') { e.preventDefault(); }
     }
     req.onsuccess = function (e) {
-        var cursor = e.target.result;
-        if (cursor) {
-          results.push(makeSearchResult(phrase, cursor.value, identifier))
-          cursor.continue();
-        } else if (!cursor) {
-          var msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
-          $container.append(results.join(''));
-          $container.prepend('<p><strong>' + msg + '</strong></p>');
-          backend.currentTransaction = null;
+      var cursor = e.target.result;
+      if (cursor) {
+        if (keys.indexOf(cursor.primaryKey) === -1) {
+          keys.push(cursor.primaryKey);
+          vals.push(cursor.value);
         }
+        cursor.continue();
+      } else {
+        vals.forEach(function (item) {
+          results.add(item);
+        });
+        backend.currentTransaction = null;
+        success.call(null, results, start, Date.now());
       }
+    }
   }
 
   this.teardown = function () {

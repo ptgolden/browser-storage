@@ -68,11 +68,24 @@ function backendDestroyed() {
 }
 
 function enableSearch(source) {
+  var $results = $('#results');
   $('#textinput')
     .prop('disabled', false)
     .off()
     .on('input', function () {
-      backend.performSearch(this.value, source);
+      if (this.value.trim().length < 2) {
+        $('#results').html('');
+        return;
+      } 
+      backend.performSearch(source, this.value, function (results, start, end) {
+        var msg = results.results.length + ' results for '
+          + '"' + results.phrase + '" '
+          + 'in ' + (end - start) + 'ms';
+        $('#results')
+          .html('')
+          .append('<p><strong>' + msg + '</strong></p>')
+          .append(results.results.join(''));
+      });
     });
   reportAction('Input bound. Type to search for keywords from ' + source + '.');
 }

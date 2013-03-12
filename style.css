@@ -45,10 +45,16 @@ section:not(:last-of-type) { margin: 1em; border-bottom: 1px solid #333; }
 #backend > div { display: inline-block; margin: 0; }
 #selected-backend { font-weight: bold; }
 
-#results { max-height: 480px; overflow-y: scroll; padding: 0 12px; }
+#results { max-height: 480px; overflow-y: auto; padding: 0 12px; }
 #results > p { margin-top: 0px; }
 .search-matched { font-weight: bold; }
 .search-result { padding: 3px 10px; }
+.result-sub {
+    color: gray;
+}
+.result-sub .keyword {
+    color: #333;
+}
 
 .grid > [class*="-columns"] { float: left; margin-right: 32px; }
 .grid > div.two-columns { width: 40%; }
