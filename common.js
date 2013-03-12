@@ -15,8 +15,8 @@ function loadData(name) {
 
   if (!source) {
     reportAction('No such source: ' + name);
+    return;
   }
-
   if (source.method === 'ajax') {
     request = new XMLHttpRequest();
     request.onload = function () {
@@ -42,15 +42,11 @@ function reportAction(action, start, end) {
   msg = !(end && start) ? action : action + ': ' + (end - start) + 'ms';
   $action.html(msg).prependTo($actionsContainer);
 
-  if (end && start) {
-    $action.addClass('time');
-  }
-
+  if (end && start) $action.addClass('time');
   if ($actionsContainer.children().length > 20) {
     $actionsContainer.children().slice(20).remove();
   }
 
-  return $action;
 }
 
 function backendSelected(backend) {

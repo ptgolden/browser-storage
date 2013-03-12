@@ -7,12 +7,8 @@ function getKeywords(phrase) {
   var keywords = phrase
     .replace(/[,'".]/, '')
     .split(/[ ]+/)
-    .filter(function (token) {
-      return /^[A-Za-z]{2,}/.test(token);
-    })
-    .map(function (kw) {
-      return kw.toLowerCase()
-    });
+    .filter(function (token) { return /^[A-Za-z]{2,}/.test(token); })
+    .map(function (kw) { return kw.toLowerCase(); });
   return keywords;
 }
 
@@ -98,7 +94,7 @@ SearchResults.prototype = {
           break;
         }
       }
-      if (match) { break; }
+      if (match) break;
     }
 
     return (match || null) && kwmatch;

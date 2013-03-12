@@ -1,14 +1,8 @@
 var localStorageBackend = function() {
-  var backend = this;
-
+  var self = this;
   this.cachedData = {};
-  this.oninit = undefined;
-  this.ondestroyed = undefined;
 
   this.init = function () {
-    if (backend.oninit) {
-      backend.oninit.apply(backend);
-    }
     reportAction('localStorage ready');
   }
 
@@ -30,26 +24,22 @@ var localStorageBackend = function() {
       , firstWord = phrase.trim().replace(/^([^\s]+).*/, '$1').toLowerCase()
       , results = new SearchResults(source, phrase)
 
-    if (!firstWord.length) { return; }
+    if (!firstWord.length) {
+      return;
+    }
 
     backend.cachedData[source].items.forEach(function (item) {
       // This performs the same way as IndexedDB.
       var match = item.keywords.some(function (kw) {
         return kw.indexOf(firstWord) === 0;
       });
-      if (match) { results.add(item); }
+      if (match) results.add(item);
     });
-
     success.call(null, results, start, Date.now());
   }
 
   this.teardown = function () {
-    for (var key in localStorage) {
-      localStorage.removeItem(key);
-    }
-    if (backend.onteardown) {
-      backend.onteardown.apply(backend);
-    }
+    for (var key in localStorage) localStorage.removeItem(key);
     reportAction('localStorage cleared');
   }
 

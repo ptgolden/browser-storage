@@ -12,8 +12,10 @@ var indexedDB
 
 indexedDB.deleteDatabase(IDBName);
 
-var IDBBackend = function () {
-  var backend = this;
+function IDBBackend() {
+  var self = this;
+  this.db = null;
+  this.currentTransaction = null;
 
   function createObjectStore(db, source) {
     var objectStore = db.createObjectStore(source, {
@@ -26,28 +28,18 @@ var IDBBackend = function () {
     });
   }
 
-  this.db = null;
-  this.currentTransaction = null;
-  this.oninit = undefined;
-  this.ondestroyed = undefined;
-
   this.init = function () {
     var req = indexedDB.open(IDBName);
     req.onsuccess = function (e) {
-      backend.db = this.result;
-      if (backend.oninit) {
-        backend.oninit.apply(backend);
-      }
+      self.db = this.result;
       reportAction('IndexedDB ' + IDBName + ' opened.');
-    }
-    req.onupgradeneeded = function (e) {
-      var db = this.result;
-      for (var source in sources) {
-        createObjectStore(db, source);
-      }
     }
     req.onerror = function (e) {
       console.log('Database error', e);
+    }
+    req.onupgradeneeded = function (e) {
+      var db = this.result;
+      for (var source in sources) createObjectStore(db, source);
     }
   }
 
@@ -62,39 +54,35 @@ var IDBBackend = function () {
       reportAction(msg, start, Date.now());
       enableSearch(name);
     }
-
-    data.items.forEach(function (item) {
-      objectStore.put(item);
-    });
+    data.items.forEach(function (item) { objectStore.put(item) });
   }
 
   this.performSearch = function (source, phrase, success) {
     var start = Date.now()
       , firstWord = phrase.trim().split(/\s/)[0].toLowerCase()
       , results = new SearchResults(source, phrase)
+      , vals = []
+      , keys = []
       , range
       , transaction
       , req
-      , vals = []
-      , keys = []
 
-    if (backend.currentTransaction !== null) {
-      backend.currentTransaction.abort();
-      backend.currentTransaction = null;
+    if (self.currentTransaction !== null) {
+      self.currentTransaction.abort();
+      self.currentTransaction = null;
     }
 
-    if (!firstWord.length) { return; }
-
-    transaction = backend.db.transaction([source]);
-    backend.currentTransaction = transaction;
+    if (!firstWord.length) return;
 
     // Search the keyword index for all those words that begin with the first
     // word of the searched phrase.
     range = IDBKeyRange.bound(firstWord, firstWord + '\uffff');
+    transaction = self.currentTransaction = self.db.transaction([source]);
+
     req = transaction.objectStore(source).index('keywords').openCursor(range);
     req.onerror = function (e) {
       // Request is aborted if another search is started before it's finished
-      if (e.target.error.name === 'AbortError') { e.preventDefault(); }
+      if (e.target.error.name === 'AbortError') e.preventDefault();
     }
     req.onsuccess = function (e) {
       var cursor = e.target.result;
@@ -108,7 +96,7 @@ var IDBBackend = function () {
         vals.forEach(function (item) {
           results.add(item);
         });
-        backend.currentTransaction = null;
+        self.currentTransaction = null;
         success.call(null, results, start, Date.now());
       }
     }
@@ -117,13 +105,8 @@ var IDBBackend = function () {
   this.teardown = function () {
     indexedDB.deleteDatabase(IDBName).onsuccess = function () {
       reportAction('IndexedDB ' + IDBName + ' deleted.');
-      if (backend.onteardown) {
-        backend.onteardown.apply(backend);
-      }
     }
-    if (backend.db) {
-      backend.db.close();
-    }
+    if (self.db) self.db.close();
   }
 
   return this;
