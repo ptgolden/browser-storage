@@ -43,10 +43,7 @@ var IDBBackend = function () {
     }
     req.onupgradeneeded = function (e) {
       var db = this.result;
-      for (var source in dataSources) {
-        createObjectStore(db, source);
-      }
-      for (var source in readFiles) {
+      for (var source in sources) {
         createObjectStore(db, source);
       }
     }

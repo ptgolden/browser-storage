@@ -1,64 +1,35 @@
 var backend = null
-  , readFiles = {}
-  , dataSources = {
-      'topics': {
-        'src': 'data/topics.json',
-        'keyword_fields': ['name', 'aliases']
-      }
-    }
 
-$(document).on('ready', function () {
-  $('#delete-db').on('click', function() {
-    backend.teardown();
-    backendDestroyed();
-  });
+var sources = {
+  'topics': {
+    'method': 'ajax',
+    'file': 'data/topics.json',
+    'identifier': 'name',
+    'keyword_fields': ['name', 'aliases'],
+  }
+}
 
-  $('#backend-select').on('click', 'button', function () {
-    var selectedBackend = $(this).data('backend');
-    backend = null;
+function loadData(name) {
+  var source = sources[name]
+    , request
 
-    switch (selectedBackend) {
-    case 'IndexedDB':
-      backend = new IDBBackend();
-      break;
-    case 'localStorage':
-      backend = new localStorageBackend();
-      break;
-    }
+  if (!source) {
+    reportAction('No such source: ' + name);
+  }
 
-    if (backend) {
-      backend.init();
-      backendSelected(selectedBackend);
-    }
-  });
-  
-  $('#controls').on('click', '.load-data:enabled', function () {
-    var $this = $(this);
-    reportAction('Loading data for ' + $this.data('name'));
-    loadData($this.data('method'), $this.data('name'), $this.data('identifier'));
-  });
-
-  reportAction('Select a backend to begin.');
-});
-
-function loadData(method, name) {
-  var request
-    , file
-
-  if (method === 'ajax') {
-    file = dataSources[name].file;
+  if (source.method === 'ajax') {
     request = new XMLHttpRequest();
     request.onload = function () {
       var data = JSON.parse(this.responseText);
       data.items.forEach(function(item) {
-        item.keywords = getAllKeywords(item, dataSources[name].keyword_fields);
+        item.keywords = getAllKeywords(item, source.keyword_fields);
       });
-      backend.loadData(name, file, data);
+      backend.loadData(name, source.file, data);
     }
-    request.open('get', dataSources[name].src);
+    request.open('get', source.file);
     request.send();
-  } else if (method === 'file') {
-    backend.loadData(name, readFiles[name].file, readFiles[name].data);
+  } else if (source.method === 'file') {
+    backend.loadData(name, source.file, source.data);
   }
 }
 
@@ -97,13 +68,46 @@ function backendDestroyed() {
 }
 
 function enableSearch(source) {
-  var identifier = $('button[data-name="' + source + '"]').data('identifier');
   $('#textinput')
     .prop('disabled', false)
     .off()
     .on('input', function () {
-      backend.performSearch(this.value, source, identifier);
+      backend.performSearch(this.value, source);
     });
   reportAction('Input bound. Type to search for keywords from ' + source + '.');
 }
+
+$(document).on('ready', function () {
+  $('#delete-db').on('click', function() {
+    backend.teardown();
+    backendDestroyed();
+  });
+
+  $('#backend-select').on('click', 'button', function () {
+    var selectedBackend = $(this).data('backend');
+    backend = null;
+
+    switch (selectedBackend) {
+    case 'IndexedDB':
+      backend = new IDBBackend();
+      break;
+    case 'localStorage':
+      backend = new localStorageBackend();
+      break;
+    }
+
+    if (backend) {
+      backend.init();
+      backendSelected(selectedBackend);
+    }
+  });
+  
+  $('#controls').on('click', '.load-data:enabled', function () {
+    var $this = $(this);
+    reportAction('Loading data for ' + $this.data('name'));
+    loadData($this.data('name'));
+  });
+
+  reportAction('Select a backend to begin.');
+});
 

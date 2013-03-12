@@ -112,7 +112,7 @@ $(document).ready(function() {
       , btn
 
     // name must be unique
-    while (readFiles.hasOwnProperty(name) || dataSources.hasOwnProperty(name)) {
+    while (sources.hasOwnProperty(name)) {
       name += 'x';
     }
 
@@ -123,14 +123,16 @@ $(document).ready(function() {
       }
     });
 
-    readFiles[name] = {
+    sources[name] = {
+      'method': 'file',
       'file': filename,
-      'data': data,
+      'identifier': identifier,
+      'keyword_fields': kwfields,
+      'data': data
     }
 
     btn = '<button class="load-data" disabled="disabled" '
-      + 'data-method="file" data-name="' + name + '" data-identifier="' + identifier + '">'
-      + filename + '</button>';
+      + 'data-name="' + name + '">' + filename + '</button>';
 
     $('#data-sources').append(btn);
 
