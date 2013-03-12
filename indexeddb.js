@@ -1,7 +1,6 @@
 var indexedDB
   , IDBKeyRange
   , IDBName = 'idb_test'
-  , IDBVersion = 1
 
   indexedDB = window.indexedDB
     || window.mozIndexedDB
@@ -28,13 +27,13 @@ var IDBBackend = function () {
   }
 
   this.db = null;
+  this.currentTransaction = null;
   this.oninit = undefined;
   this.ondestroyed = undefined;
 
   this.init = function () {
-    var req = indexedDB.open(IDBName, IDBVersion);
+    var req = indexedDB.open(IDBName);
     req.onsuccess = function (e) {
-      IDBVersion += 1;
       backend.db = this.result;
       if (backend.oninit) {
         backend.oninit.apply(backend);
@@ -77,6 +76,11 @@ var IDBBackend = function () {
       , range
       , transaction
 
+    if (backend.currentTransaction !== null) {
+      backend.currentTransaction.abort();
+      backend.currentTransaction = null;
+    }
+
     if (!firstWord || firstWord.length < 2) {
       return;
     }
@@ -88,13 +92,15 @@ var IDBBackend = function () {
     transaction = backend.db.transaction([source]);
     backend.currentTransaction = transaction;
 
-    transaction
-      .objectStore(source)
-      .index('keywords')
-      .openCursor(range)
-      .onsuccess = function (e) {
+    var req = transaction.objectStore(source).index('keywords').openCursor(range);
+    req.onerror = function (e) {
+      if (e.target.error.name === 'AbortError') {
+        e.preventDefault();
+      }
+    }
+    req.onsuccess = function (e) {
         var cursor = e.target.result;
-        if (cursor && backend.currentTransaction === transaction) {
+        if (cursor) {
           results.push(makeSearchResult(phrase, cursor.value, identifier))
           cursor.continue();
         } else if (!cursor) {
@@ -107,7 +113,7 @@ var IDBBackend = function () {
   }
 
   this.teardown = function () {
-    indexedDB.deleteDatabase('idb_test').onsuccess = function () {
+    indexedDB.deleteDatabase(IDBName).onsuccess = function () {
       reportAction('IndexedDB ' + IDBName + ' deleted.');
       if (backend.onteardown) {
         backend.onteardown.apply(backend);
