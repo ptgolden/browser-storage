@@ -5,7 +5,7 @@ var sources = {
     'method': 'ajax',
     'file': 'data/topics.json',
     'identifier': 'name',
-    'keyword_fields': ['name', 'aliases'],
+    'keyword_fields': ['name', 'aliases']
   }
 }
 
