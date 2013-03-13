@@ -1,14 +1,8 @@
 var localStorageBackend = function() {
-  var backend = this;
-
+  var self = this;
   this.cachedData = {};
-  this.oninit = undefined;
-  this.ondestroyed = undefined;
 
   this.init = function () {
-    if (backend.oninit) {
-      backend.oninit.apply(backend);
-    }
     reportAction('localStorage ready');
   }
 
@@ -25,39 +19,27 @@ var localStorageBackend = function() {
     enableSearch(name);
   }
 
-  this.performSearch = function (phrase, source, identifier) {
+  this.performSearch = function (source, phrase, success) {
     var start = Date.now()
-      , lphrase = phrase.toLowerCase()
-      , $container = $('#results').html('')
-      , results = []
-      , msg
+      , firstWord = phrase.trim().replace(/^([^\s]+).*/, '$1').toLowerCase()
+      , results = new SearchResults(source, phrase)
 
-    if (!lphrase || lphrase.length < 2) {
+    if (!firstWord.length) {
       return;
     }
 
     backend.cachedData[source].items.forEach(function (item) {
-      var match;
-      match = item.keywords.filter(function(kw) {
-        return kw.indexOf(lphrase) === 0;
+      // This performs the same way as IndexedDB.
+      var match = item.keywords.some(function (kw) {
+        return kw.indexOf(firstWord) === 0;
       });
-      if (match.length > 0) {
-        results.push(makeSearchResult(phrase, item, identifier));
-      }
+      if (match) results.add(item);
     });
-
-    $container.append(results.join(''));
-    msg = results.length + ' results for "' + phrase + '" in ' + (Date.now() - start) + 'ms';
-    $container.prepend('<p><strong>' + msg + '</strong></p>');
+    success.call(null, results, start, Date.now());
   }
 
   this.teardown = function () {
-    for (var key in localStorage) {
-      localStorage.removeItem(key);
-    }
-    if (backend.onteardown) {
-      backend.onteardown.apply(backend);
-    }
+    for (var key in localStorage) localStorage.removeItem(key);
     reportAction('localStorage cleared');
   }
 
