@@ -4,6 +4,8 @@ function localStorageBackend() {
 
   return {
 
+    supported: !!window.localStorage,
+
     init: function () {
       // Nothing really needs to be done
       reportAction('localStorage ready');

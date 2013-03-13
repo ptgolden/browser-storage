@@ -10,7 +10,7 @@ var indexedDB
     || window.webkitIDBKeyRange
     || window.msIDBKeyRange;
 
-indexedDB.deleteDatabase(IDBName);
+if (indexedDB) indexedDB.deleteDatabase(IDBName);
 
 function IDBBackend() {
   var self = this;
@@ -18,6 +18,8 @@ function IDBBackend() {
   this.currentTransaction = null;
 
   return {
+
+    supported: !!(indexedDB && IDBKeyRange),
 
     init: function () {
       var req = indexedDB.open(IDBName);
