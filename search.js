@@ -61,7 +61,7 @@ function SearchResults(source, phrase) {
   });
   this.fullPattern = new RegExp('\\b(' + this.phrase + ')', 'ig');
 
-  this.results = [];
+  this.length = 0;
 }
 
 SearchResults.prototype = {
@@ -161,7 +161,8 @@ SearchResults.prototype = {
       result = '<div class="search-result">' + result + '</div>'
 
       // Add this result to the search result object
-      this.results.push(result);
+      this[this.length] = result;
+      this.length += 1;
     }
 
     // return the result just in case anyone would want it

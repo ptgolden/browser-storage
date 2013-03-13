@@ -74,13 +74,14 @@ function enableSearch(source) {
         return;
       } 
       backend.performSearch(source, this.value, function (results, start, end) {
-        var msg = results.results.length + ' results for '
+        var msg = results.length + ' results for '
           + '"' + results.phrase + '" '
           + 'in ' + (end - start) + 'ms';
+        Array.prototype.sort.call(results);
         $('#results')
           .html('')
           .append('<p><strong>' + msg + '</strong></p>')
-          .append(results.results.join(''));
+          .append(Array.prototype.join.call(results, ''));
       });
     });
   reportAction('Input bound. Type to search for keywords from ' + source + '.');
