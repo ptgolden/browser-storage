@@ -5,6 +5,8 @@ function WebSQLBackend() {
 
   return {
 
+    supported: !!window.openDatabase,
+
     init: function () {
       var db = self.db = window.openDatabase(
           'websql_test', '1.0', 'blah blah blah', 4 * 1024 * 1024);

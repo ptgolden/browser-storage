@@ -109,6 +109,11 @@ $(document).on('ready', function () {
       break;
     }
 
+    if (!backend.supported) {
+      reportAction('Your browser does not support ' + selectedBackend);
+      backend = null;
+    }
+
     if (backend) {
       backend.init();
       backendSelected(selectedBackend);
