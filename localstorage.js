@@ -1,47 +1,48 @@
-var localStorageBackend = function() {
+function localStorageBackend() {
   var self = this;
   this.cachedData = {};
 
-  this.init = function () {
-    reportAction('localStorage ready');
-  }
+  return {
 
-  this.loadData = function (name, file, data) {
-    var start = Date.now()
-      , msg
+    init: function () {
+      // Nothing really needs to be done
+      reportAction('localStorage ready');
+    },
 
-    localStorage.setItem(name, JSON.stringify(data));
-    backend.cachedData[name] = data;
+    loadData: function (name, file, data) {
+      var start = Date.now()
+        , msg
+      
+      localStorage.setItem(name, JSON.stringify(data));
+      self.cachedData[name] = data;
+      msg = 'Loaded ' + data.items.length + ' records from ' + file;
+      reportAction(msg, start, Date.now());
+      enableSearch(name);
+    },
 
-    msg = 'Loaded ' + data.items.length + ' records from ' + file;
-    reportAction(msg, start, Date.now());
+    performSearch: function (source, phrase, success) {
+      var start = Date.now()
+        , firstWord = phrase.trim().replace(/^([^\s]+).*/, '$1').toLowerCase()
+        , results = new SearchResults(source, phrase)
 
-    enableSearch(name);
-  }
+      if (!firstWord.length) {
+        return;
+      }
 
-  this.performSearch = function (source, phrase, success) {
-    var start = Date.now()
-      , firstWord = phrase.trim().replace(/^([^\s]+).*/, '$1').toLowerCase()
-      , results = new SearchResults(source, phrase)
+      self.cachedData[source].items.forEach(function (item) {
+        // This performs the same way as IndexedDB.
+        var match = item.keywords.some(function (kw) {
+          return kw.indexOf(firstWord) === 0;
+        });
+        if (match) results.add(item);
+      });
+      success.call(null, results, start, Date.now());
+    },
 
-    if (!firstWord.length) {
-      return;
+    teardown: function () {
+      for (var key in localStorage) localStorage.removeItem(key);
+      reportAction('localStorage cleared');
     }
 
-    backend.cachedData[source].items.forEach(function (item) {
-      // This performs the same way as IndexedDB.
-      var match = item.keywords.some(function (kw) {
-        return kw.indexOf(firstWord) === 0;
-      });
-      if (match) results.add(item);
-    });
-    success.call(null, results, start, Date.now());
   }
-
-  this.teardown = function () {
-    for (var key in localStorage) localStorage.removeItem(key);
-    reportAction('localStorage cleared');
-  }
-
-  return this;
 }
