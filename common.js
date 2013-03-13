@@ -104,6 +104,9 @@ $(document).on('ready', function () {
     case 'localStorage':
       backend = new localStorageBackend();
       break;
+    case 'WebSQL':
+      backend = new WebSQLBackend();
+      break;
     }
 
     if (backend) {
