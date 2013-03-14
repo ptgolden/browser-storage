@@ -27,9 +27,7 @@ function localStorageBackend() {
         , firstWord = phrase.trim().replace(/^([^\s]+).*/, '$1').toLowerCase()
         , results = new SearchResults(source, phrase)
 
-      if (!firstWord.length) {
-        return;
-      }
+      if (!firstWord.length) return;
 
       self.cachedData[source].items.forEach(function (item) {
         // This performs the same way as IndexedDB.

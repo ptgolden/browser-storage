@@ -23,9 +23,7 @@ $(document).ready(function() {
     e.preventDefault();
     e.stopPropagation();
     dropbox.classList.remove('drop-active');
-    if (files.length > 0) {
-      handleFiles(files);
-    }
+    if (files.length > 0) handleFiles(files);
     return;
   }
 
@@ -45,9 +43,7 @@ $(document).ready(function() {
       } catch (error) {
         reportAction('Could not parse file as JSON.');
       }
-      if (data) {
-        chooseKeywordFields(file.name, data);
-      }
+      if (data) chooseKeywordFields(file.name, data);
     }
     reader.readAsText(file);
   }
@@ -112,9 +108,7 @@ $(document).ready(function() {
       , btn
 
     // name must be unique
-    while (sources.hasOwnProperty(name)) {
-      name += 'x';
-    }
+    while (sources.hasOwnProperty(name)) name += 'x';
 
     data.items.forEach(function(item, idx) {
       item.keywords = getAllKeywords(item, kwfields);
