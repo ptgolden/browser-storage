@@ -1,6 +1,8 @@
-var indexedDB
-  , IDBKeyRange
-  , IDBName = 'idb_test'
+function IDBBackend(name) {
+  var self = this
+    , indexedDB
+    , IDBKeyRange
+    , IDBName = name || 'idb_test'
 
   indexedDB = window.indexedDB
     || window.mozIndexedDB
@@ -10,10 +12,8 @@ var indexedDB
     || window.webkitIDBKeyRange
     || window.msIDBKeyRange;
 
-if (indexedDB) indexedDB.deleteDatabase(IDBName);
+  if (indexedDB) indexedDB.deleteDatabase(IDBName);
 
-function IDBBackend() {
-  var self = this;
   this.db = null;
   this.currentTransaction = null;
 
