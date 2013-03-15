@@ -48,23 +48,34 @@ function getAllKeywords(item, kwfields) {
  * phrase and fields that a given item will be checked for.
  *
  */
-function SearchResults(source, phrase) {
-  this.identField = sources[source].identifier
-  this.kwFields = sources[source].keyword_fields
+function SearchResultSet(source, phrase) {
+  var stripped = phrase.replace(/[()\[\]`~.*\-]/g, '')
+    , tokens = stripped.split(/\s/).filter(function (t) { return t.length > 0 })
 
-  this.phrase = phrase.replace(/[()\[\]`~.*\-]/g, '');
-  this.phraseSplit = this.phrase.split(/\s/).filter(function (token) {
-    return token.length > 0;
-  });
-  this.phrasePatterns = this.phraseSplit.map(function (phrase) {
-    return new RegExp('(' + phrase + ')', 'ig');
-  });
-  this.fullPattern = new RegExp('\\b(' + this.phrase + ')', 'ig');
+  this.fields = {
+    ident: sources[source].identifier,
+    kws: sources[source].keyword_fields
+  }
+
+  this.phrase = {
+    original: phrase,
+    stripped: stripped,
+    tokens: tokens,
+    fullPattern: new RegExp('\\b(' + stripped + ')', 'ig'),
+    tokenPatterns: tokens.map(function(t) {
+      return new RegExp('(' + t + ')', 'ig');
+    })
+  }
+
+  this.times = {
+    retrieval: {start: Date.now(), end: undefined},
+    processing: {start: undefined, end: undefined}
+  }
 
   this.length = 0;
 }
 
-SearchResults.prototype = {
+SearchResultSet.prototype = {
 
   /**
    * Find the first value in one of the 'keyword fields' of a given item
@@ -78,15 +89,15 @@ SearchResults.prototype = {
    *
    */
   getMatchingKeyword: function (item) {
-    var identifier = item[this.identField]
+    var identifier = item[this.fields.ident]
       , key
       , match
       , kwmatch
 
-    for (var i = 0; i < this.kwFields.length; i++) {
-      key = this.kwFields[i];
+    for (var i = 0; i < this.fields.kws.length; i++) {
+      key = this.fields.kws[i];
       for (var j = 0, kws = [].concat(item[key]); j < kws.length; j++) {
-        match = this.phrasePatterns.every(function(pattern) {
+        match = this.phrase.tokenPatterns.every(function(pattern) {
           return identifier.match(pattern) || kws[j].match(pattern);
         });
         if (match) {
@@ -100,6 +111,16 @@ SearchResults.prototype = {
     return (match || null) && kwmatch;
   },
 
+  data: function (items) {
+    var item;
+    this.times.retrieval.end = this.times.processing.start = Date.now();
+    for (var i = 0, until = items.length; i < until; i++) {
+      item = items.pop();
+      this.add(item)
+    }
+    this.times.processing.end = Date.now();
+  },
+
   /**
    * Add an item to this search result.
    *
@@ -108,26 +129,26 @@ SearchResults.prototype = {
    *
    */
   add: function (item) {
-    var identifier = item[this.identField]
+    var identifier = item[this.fields.ident]
       , result
       , fullIdentMatch
       , identMatch
       , kwMatch
 
     // Ignoring case, does the phrase exactly match the item's identifier?
-    strictIdentMatch = identifier.match(this.fullPattern);
+    strictIdentMatch = identifier.match(this.phrase.fullPattern);
 
     // Ignoring case, does every token in the phrase match the item's identifier?
     // Skipped if there was already a match.
-    looseIdentMatch = strictIdentMatch || this.phrasePatterns.every(function (pattern) {
+    looseIdentMatch = strictIdentMatch || this.phrase.tokenPatterns.every(function (pattern) {
       return identifier.match(pattern);
     });
 
     if (strictIdentMatch) {
-      result = identifier.replace(this.fullPattern, '~$1`');
+      result = identifier.replace(this.phrase.fullPattern, '~$1`');
     } else if (looseIdentMatch) {
       result = identifier;
-      this.phrasePatterns.forEach(function(pattern) {
+      this.phrase.tokenPatterns.forEach(function(pattern) {
         result = result.replace(pattern, '~$1`');
       });
     } else {
@@ -136,7 +157,7 @@ SearchResults.prototype = {
       kwMatch = this.getMatchingKeyword(item, identifier);
       if (kwMatch) {
         result = identifier;
-        this.phrasePatterns.forEach(function(pattern) {
+        this.phrase.tokenPatterns.forEach(function(pattern) {
           result = result.replace(pattern, '~$1`');
           kwMatch.val = kwMatch.val.replace(pattern, '~$1`');
         });
@@ -167,6 +188,18 @@ SearchResults.prototype = {
 
     // return the result just in case anyone would want it
     return result;
+  },
+
+  retrievalTime: function () {
+    with (this.times.retrieval) return end - start;
+  },
+
+  processingTime: function () {
+    with (this.times.processing) return end - start;
+  },
+
+  totalTime: function() { 
+    return this.processingTime() + this.retrievalTime();
   },
 
   /**

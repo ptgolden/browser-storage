@@ -73,10 +73,10 @@ function enableSearch(source) {
         $('#results').html('');
         return;
       } 
-      backend.performSearch(source, this.value, function (results, start, end) {
+      backend.performSearch(source, this.value, function (results) {
         var msg = results.length + ' results for '
-          + '"' + results.phrase + '" '
-          + 'in ' + (end - start) + 'ms';
+          + '"' + results.phrase.original + '" '
+          + 'in ' + results.totalTime() + 'ms';
         Array.prototype.sort.call(results);
         $('#results')
           .html('')

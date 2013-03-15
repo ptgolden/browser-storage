@@ -61,14 +61,15 @@ function WebSQLBackend() {
     },
 
     performSearch: function (source, phrase, success) {
-      var start = Date.now()
-        , firstWord = phrase.trim().split(/\s/)[0].toLowerCase()
-        , results = new SearchResults(source, phrase)
+      var results = new SearchResultSet(source, phrase)
+        , firstWord = results.phrase.tokens[0].toLowerCase()
+        , items = []
 
       if (!firstWord.length) return;
 
       function itworked() {
-        success.call(null, results, start, Date.now());
+        results.data(items);
+        success.call(null, results);
       }
 
       self.db.readTransaction(function (tx) {
@@ -78,7 +79,7 @@ function WebSQLBackend() {
           + 'WHERE kw.word LIKE "' + firstWord + '%"';
         tx.executeSql(statement, [], function display(tx, res) {
           for (var i = 0; i < res.rows.length; i++) {
-            results.add(JSON.parse(res.rows.item(i).json));
+            items.push(JSON.parse(res.rows.item(i).json))
           }
         })
       }, null, itworked);

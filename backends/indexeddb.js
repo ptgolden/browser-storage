@@ -61,9 +61,8 @@ function IDBBackend(name) {
     },
 
     performSearch: function (source, phrase, success) {
-      var start = Date.now()
-        , firstWord = phrase.trim().split(/\s/)[0].toLowerCase()
-        , results = new SearchResults(source, phrase)
+      var results = new SearchResultSet(source, phrase)
+        , firstWord = results.phrase.tokens[0].toLowerCase()
         , vals = []
         , keys = []
         , range
@@ -96,9 +95,9 @@ function IDBBackend(name) {
           }
           cursor.continue();
         } else {
-          vals.forEach(function (item) { results.add(item) });
+          results.data(vals);
+          success.call(null, results);
           self.currentTransaction = null;
-          success.call(null, results, start, Date.now());
         }
       }
     },
