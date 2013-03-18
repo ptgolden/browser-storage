@@ -9,30 +9,6 @@ var sources = {
   }
 }
 
-function loadData(name) {
-  var source = sources[name]
-    , request
-
-  if (!source) {
-    reportAction('No such source: ' + name);
-    return;
-  }
-  if (source.method === 'ajax') {
-    request = new XMLHttpRequest();
-    request.onload = function () {
-      var data = JSON.parse(this.responseText);
-      data.items.forEach(function(item) {
-        item.keywords = getAllKeywords(item, source.keyword_fields);
-      });
-      backend.loadData(name, source.file, data);
-    }
-    request.open('get', source.file);
-    request.send();
-  } else if (source.method === 'file') {
-    backend.loadData(name, source.file, source.data);
-  }
-}
-
 // Report an action, optionally with a start and end time
 function reportAction(action, start, end) {
   var $actionsContainer = $('#messages')
@@ -46,12 +22,36 @@ function reportAction(action, start, end) {
   if ($actionsContainer.children().length > 20) {
     $actionsContainer.children().slice(20).remove();
   }
-
 }
 
-function backendSelected(backend) {
+function loadData(backend, sourceName, success) {
+  var source = sources[sourceName]
+    , request
+
+  if (!source) {
+    reportAction('No such source: ' + name);
+    return;
+  }
+  if (source.method === 'ajax') {
+    request = new XMLHttpRequest();
+    request.onload = function () {
+      var data = JSON.parse(this.responseText);
+      data.items.forEach(function(item) {
+        item.keywords = getAllKeywords(item, source.keyword_fields);
+      });
+      backend.loadData(sourceName, source.file, data, success);
+    }
+    request.open('get', source.file);
+    request.send();
+  } else if (source.method === 'file') {
+    backend.loadData(sourceName, source.file, source.data, success);
+  }
+}
+
+function backendSelected() {
+  reportAction(this.name + ' ready.');
   $('#backend-select').hide();
-  $('#selected-backend').show().find('span').html(backend);
+  $('#selected-backend').show().find('span').html(this.name);
   $('.load-data, #delete-db').prop('disabled', false);
   $('#filedrop').hide();
 }
@@ -63,34 +63,32 @@ function backendDestroyed() {
   $('#filedrop').show();
 }
 
+function renderResults(results) {
+  var msg = results.length + ' results for '
+    + '"' + results.phrase.original + '" '
+    + 'in ' + results.totalTime() + 'ms';
+  Array.prototype.sort.call(results);
+  $('#results')
+    .html('')
+    .append('<p><strong>' + msg + '</strong></p>')
+    .append(Array.prototype.join.call(results, ''));
+}
+
 function enableSearch(source) {
   var $results = $('#results');
   $('#textinput')
     .prop('disabled', false)
     .off()
     .on('input', function () {
-      if (this.value.trim().length < 2) {
-        $('#results').html('');
-        return;
-      } 
-      backend.performSearch(source, this.value, function (results) {
-        var msg = results.length + ' results for '
-          + '"' + results.phrase.original + '" '
-          + 'in ' + results.totalTime() + 'ms';
-        Array.prototype.sort.call(results);
-        $('#results')
-          .html('')
-          .append('<p><strong>' + msg + '</strong></p>')
-          .append(Array.prototype.join.call(results, ''));
-      });
+      if (this.value.trim().length < 2) return;
+      backend.performSearch(source, this.value, renderResults)
     });
   reportAction('Input bound. Type to search for keywords from ' + source + '.');
 }
 
 $(document).on('ready', function () {
-  $('#delete-db').on('click', function() {
-    backend.teardown();
-    backendDestroyed();
+  $('#delete-db').on('click', function () {
+    backend.teardown(backendDestroyed);
   });
 
   $('#backend-select').on('click', 'button', function () {
@@ -114,16 +112,16 @@ $(document).on('ready', function () {
       backend = null;
     }
 
-    if (backend) {
-      backend.init();
-      backendSelected(selectedBackend);
-    }
+    if (backend) backend.init(backendSelected);
+
   });
   
   $('#controls').on('click', '.load-data:enabled', function () {
-    var $this = $(this);
-    reportAction('Loading data for ' + $this.data('name'));
-    loadData($this.data('name'));
+    var source = $(this).data('name');
+    reportAction('Loading data for ' + source);
+    loadData(backend, source, function () {
+      enableSearch(source);
+    });
   });
 
   reportAction('Select a backend to begin.');
