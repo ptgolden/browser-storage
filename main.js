@@ -74,6 +74,41 @@ function renderResults(results) {
     .append(Array.prototype.join.call(results, ''));
 }
 
+function testPhrase(backend, source, phrase, iterations, success) {
+  var allresults = []
+    , testBackend = new backend();
+
+  testBackend.init(function () {
+    loadData(testBackend, source, function () {
+      reportAction('Testing search for phrase ' + phrase + ' ' + iterations + ' times');
+      test(iterations);
+    });
+  });
+
+  function test(i) {
+    if (i === 0) {
+      var rtime, ptime;
+      rtime = allresults.reduce(function (prev, cur) {
+        return prev + cur.retrieval;
+      }, 0);
+      ptime = allresults.reduce(function (prev, cur) {
+        return prev + cur.processing;
+      }, 0);
+      if (success) success.call(null, testBackend.name, rtime, ptime);
+      return;
+    }
+    testBackend.performSearch(source, phrase, function (results) {
+      allresults.push({
+        'retrieval': results.retrievalTime(),
+        'processing': results.processingTime()
+      });
+      test(i - 1);
+    });
+  }
+
+  return allresults;
+}
+
 function enableSearch(source) {
   var $results = $('#results');
   $('#textinput')
