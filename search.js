@@ -52,10 +52,12 @@ function SearchResultSet(source, phrase) {
   var stripped = phrase.replace(/[()\[\]`~.*\-]/g, '')
     , tokens = stripped.split(/\s/).filter(function (t) { return t.length > 0 })
 
+  this.source = source;
+
   this.fields = {
     ident: sources[source].identifier,
     kws: sources[source].keyword_fields
-  }
+  };
 
   this.phrase = {
     original: phrase,
@@ -65,12 +67,12 @@ function SearchResultSet(source, phrase) {
     tokenPatterns: tokens.map(function(t) {
       return new RegExp('(' + t + ')', 'ig');
     })
-  }
+  };
 
   this.times = {
     retrieval: {start: Date.now(), end: undefined},
     processing: {start: undefined, end: undefined}
-  }
+  };
 
   this.length = 0;
 }
