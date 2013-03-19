@@ -14,7 +14,25 @@
     <script type="text/javascript" src="backends/localstorage.js"></script>
     <script type="text/javascript" src="backends/websql.js"></script>
 
+    <script type="text/template" id="filedrop-template">
+      <h3>Choose keyword fields for {{ filename }}</h3>
+      <ul class="kw-select">
+        {{ kw_choices }}
+      </ul>
+
+      <h3>Choose identifier field</h3>
+      <select id="ident-select">
+        {{ ident_options }}
+      </select>
+
+      <div>
+        <button class="filedrop-accept">OK</button>
+        <button>Cancel</button>
+      </div>
+    </script>
+
     <link rel="stylesheet" type="text/css" href="style.css" />
+
   </head>
   <body>
 

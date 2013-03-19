@@ -9,6 +9,18 @@ var sources = {
   }
 }
 
+function formatTemplate(template, dict) {
+  return template.replace(/{{[ \w]+}}/g, function (match) {
+    var name = match.replace(/[{} ]/g, '')
+      , val = dict.hasOwnProperty(name) && dict[name]
+
+    if (!val) return match;
+    if (Array.isArray(val)) return val.join(' ');
+    return val;
+
+  });
+}
+
 // Report an action, optionally with a start and end time
 function reportAction(action, start, end) {
   var $actionsContainer = $('#messages')
