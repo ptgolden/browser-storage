@@ -14,7 +14,15 @@ function localStorageBackend() {
     var start = Date.now()
       , msg
     
-    localStorage.setItem(name, JSON.stringify(data));
+    try {
+      localStorage.setItem(name, JSON.stringify(data));
+    } catch (e) {
+      if (e.code == 22) {
+        reportAction('<strong style="color: red">localStorage quota exceeded! '
+            + 'Loaded data into memory anyway, '
+            + 'but this amount of data would not be able to be persisted.</strong>');
+      }
+    }
     self.cachedData[name] = data;
     msg = 'Loaded ' + data.items.length + ' records from ' + file;
     reportAction(msg, start, Date.now());
