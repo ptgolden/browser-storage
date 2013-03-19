@@ -73,6 +73,7 @@ function backendDestroyed() {
   $('#selected-backend').hide().find('span').html('');
   $('.load-data, #delete-db, #textinput').prop('disabled', true);
   $('#filedrop').show();
+  $('#results').html('&nbsp;');
 }
 
 function renderResults(results) {
@@ -88,16 +89,19 @@ function renderResults(results) {
     .append(Array.prototype.join.call(results, ''))
     .find('.graph-result').click(function () {
       var iterations = 5
-        , data = {
-            backend: backend,
-            phrase: results.phrase.original,
-            source: results.source
-          }
-
+        , data
+     
+      data = {
+        backend: backend,
+        phrase: results.phrase.original,
+        source: results.source,
+        results: results.length
+      };
       reportAction('Testing phrase "' + data.phrase + '" ' + iterations + ' times.');
       testPhrase(data, iterations, function (data, rtime, ptime) {
         resultsGraph.addResultSet(data, rtime, ptime);
       })
+      $(this).remove();
     });
 }
 
