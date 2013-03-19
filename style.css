@@ -4,7 +4,7 @@
  */
 .hide { display: none; }
 .grid > [class*="-columns"] { float: left; margin-right: 32px; }
-.grid > div.two-columns { width: 40%; }
+.grid > div.two-columns { width: 45%; }
 .grid:after { content: " "; display: table; clear: both; }
 
 
