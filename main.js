@@ -79,11 +79,26 @@ function renderResults(results) {
   var msg = results.length + ' results for '
     + '"' + results.phrase.original + '" '
     + 'in ' + results.totalTime() + 'ms';
+  var btn = '<a href="#" class="graph-result" style="color: green;">Graph result</a>';
+
   Array.prototype.sort.call(results);
   $('#results')
     .html('')
-    .append('<p><strong>' + msg + '</strong></p>')
-    .append(Array.prototype.join.call(results, ''));
+    .append('<p><strong>' + msg + '</strong> ' + btn + '</p>')
+    .append(Array.prototype.join.call(results, ''))
+    .find('.graph-result').click(function () {
+      var iterations = 5
+        , data = {
+            backend: backend,
+            phrase: results.phrase.original,
+            source: results.source
+          }
+
+      reportAction('Testing phrase "' + data.phrase + '" ' + iterations + ' times.');
+      testPhrase(data, iterations, function (data, rtime, ptime) {
+        resultsGraph.addResultSet(data, rtime, ptime);
+      })
+    });
 }
 
 /*

@@ -58,4 +58,28 @@ section:not(:last-of-type) { margin: 1em; border-bottom: 1px solid #333; }
 
 .grid > [class*="-columns"] { float: left; margin-right: 32px; }
 .grid > div.two-columns { width: 40%; }
-.grid:after { content: ""; display: table; clear: both; }
+.grid:after { content: " "; display: table; clear: both; }
+
+
+/*
+ *
+ * SVG
+ *
+ */
+
+.barchart rect {
+    shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-size: 10px;
+    font-family: "Helvetica", sans-serif;
+}
+
