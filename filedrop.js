@@ -1,22 +1,9 @@
 $(document).ready(function() {
   var dropbox = document.getElementById('filedrop');
 
-  function dragover(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    return;
-  }
-
-  function dragenter(e) {
-    e.preventDefault();
-    dropbox.classList.add('drop-active');
-    return;
-  }
-
-  function dragleave(e) {
-    dropbox.classList.remove('drop-active');
-    return;
-  }
+  function dragover(e) { e.preventDefault(); e.stopPropagation(); return; }
+  function dragenter(e) { e.preventDefault(); dropbox.classList.add('drop-active'); return; }
+  function dragleave(e) { dropbox.classList.remove('drop-active'); return; }
 
   function drop(e) {
     var files = e.dataTransfer.files;
@@ -49,58 +36,53 @@ $(document).ready(function() {
   }
 
   function chooseKeywordFields(filename, data) {
-    var potentialKWFields = []
-      , $kwSection = $('#choose-keywords')
+    var $kwSection = $('#choose-keywords')
       , $controlsSection = $('#controls')
-      , $identSelect = $('<select>')
+      , template = document.getElementById('filedrop-template').innerHTML
+      , potentialKWFields = []
+      , kwinputs = []
+      , identopts = []
 
     $kwSection
       .css('min-height', $controlsSection.innerHeight())
       .html('<p>Detecting keywords...</p>')
       .show()
-      .on('click', 'button', function () {
-        $controlsSection.show();
-        $kwSection.html('').hide();
-      });
-
-    $controlsSection.hide();
-
-    data.items.forEach(function (item) {
-      for (var field in item) {
-        if (potentialKWFields.indexOf(field) === -1) {
-          potentialKWFields.push(field)
-        }
-      }
-    });
-
-    $kwSection.html('<h3>Choose keyword fields for ' + filename + '</h3>');
-
-    potentialKWFields.forEach(function(kw) {
-      $kwSection.append('<input type="checkbox" name="' + kw + '" />' + '<span style="margin-right: 16px;">' + kw + '</span>' );
-      $identSelect.append('<option value="' + kw + '">' + kw + '</option>');
-    });
-
-    $kwSection.append('<br /><h3>Identifier field:</h3>');
-    $identSelect.appendTo($kwSection).find('[value="name"]').prop('selected', 'selected');
-
-    $kwSection.append('<br /><br />');
-
-    $('<button>OK</button>').appendTo($kwSection)
-      .one('click', function () {
-        var kwfields
-          , identifier
-        
+      .on('click', '.filedrop-accept', function () {
+        var kwfields, identifier;
         kwfields = $('input:checked', $kwSection).toArray().map(function (el) {
           return el.name;
         });
         identifier = $('select', $kwSection).val() || 'name';
         addDataSource(filename, data, kwfields, identifier);
+      })
+      .on('click', 'button', function () {
+        $controlsSection.show();
+        $kwSection.hide();
+        setTimeout(function () { $kwSection.html(''); }, 150);
       });
+    $controlsSection.hide();
 
-    $('<button>Cancel</button>').appendTo($kwSection);
+    data.items.forEach(function (item) {
+      for (var field in item) {
+        if (potentialKWFields.indexOf(field) === -1) potentialKWFields.push(field);
+      }
+    });
 
-    $kwSection.append('<br />');
+    potentialKWFields.forEach(function (kw) {
+      var input = '<li><input type="checkbox" name="{{kw}}" />{{kw}}</li>'
+        , opt = '<option value="{{kw}}">{{kw}}</option>';
+      kwinputs.push(formatTemplate(input, {kw: kw}));
+      identopts.push(formatTemplate(opt, {kw: kw}));
+    });
 
+    $kwSection
+      .html('')
+      .append(formatTemplate(template, {
+        filename: filename,
+        ident_options: identopts,
+        kw_choices: kwinputs
+      }))
+      .find('option[value="name"]').prop('selected', 'selected')
   }
 
   function addDataSource(filename, data, kwfields, identifier) {

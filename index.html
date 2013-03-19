@@ -1,19 +1,39 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset='utf8' />
+    <meta charset='utf-8' />
     <title>Client-side storage testing</title>
 
-    <script type="text/javascript" src="lib/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="lib/d3.v3.min.js"></script>
 
     <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="graph.js"></script>
     <script type="text/javascript" src="search.js"></script>
     <script type="text/javascript" src="filedrop.js"></script>
     <script type="text/javascript" src="backends/indexeddb.js"></script>
     <script type="text/javascript" src="backends/localstorage.js"></script>
     <script type="text/javascript" src="backends/websql.js"></script>
 
+    <script type="text/template" id="filedrop-template">
+      <h3>Choose keyword fields for {{ filename }}</h3>
+      <ul class="kw-select">
+        {{ kw_choices }}
+      </ul>
+
+      <h3>Choose identifier field</h3>
+      <select id="ident-select">
+        {{ ident_options }}
+      </select>
+
+      <div>
+        <button class="filedrop-accept">OK</button>
+        <button>Cancel</button>
+      </div>
+    </script>
+
     <link rel="stylesheet" type="text/css" href="style.css" />
+
   </head>
   <body>
 
@@ -54,16 +74,15 @@
 
 
     <section class="grid">
-      <div class="two-columns">
-        &nbsp;
-        <div id="results">
-        </div>
+      <div class="two-columns">&nbsp;
+        <div id="results"></div>
       </div>
-      <div class="two-columns">
-        &nbsp;
-        <div id="messages">
-        </div>
+      <div class="two-columns">&nbsp;
+        <div id="messages"></div>
       </div>
+    </section>
+
+    <section id="d3">
     </section>
 
   </body>
