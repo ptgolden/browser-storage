@@ -1,9 +1,16 @@
+function TransactionAbortedError(message) {
+  this.name = 'TransactionAborted';
+  this.message = message || 'The transaction was aborted.';
+}
+TransactionAbortedError.prototype = new Error();
+TransactionAbortedError.prototype.constructor = TransactionAbortedError;
+
 function WebSQLBackend() {
   var self = this
     , dbname = 'websql_test'
 
   this.db = null;
-  this.currentTransaction = null;
+  this.currentPhrase = null;
 
   this.name = 'WebSQL (name: ' + dbname + ')';
   this.supported = !!window.openDatabase;
@@ -69,9 +76,12 @@ function WebSQLBackend() {
       , firstWord = results.phrase.tokens[0].toLowerCase()
       , items = []
 
+    self.currentPhrase = phrase;
+
     if (!firstWord.length) return;
 
     function itworked() {
+      if (phrase !== self.currentPhrase) return;
       results.data(items);
       success.call(null, results);
     }
@@ -81,8 +91,10 @@ function WebSQLBackend() {
         + 'FROM ' + source + ' main '
         + 'INNER JOIN ' + source + '_keywords kw ON main.id=kw.item_id '
         + 'WHERE kw.word LIKE "' + firstWord + '%"';
-      tx.executeSql(statement, [], function display(tx, res) {
+      if (phrase !== self.currentPhrase) return;
+      tx.executeSql(statement, [], function (tx, res) {
         for (var i = 0; i < res.rows.length; i++) {
+          if (phrase !== self.currentPhrase) return;
           items.push(JSON.parse(res.rows.item(i).json))
         }
       })
