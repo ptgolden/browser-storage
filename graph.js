@@ -30,10 +30,9 @@ var resultsGraph = {
   },
 
   addResultSet: function (data, rtime, ptime) {
-    var backend = data.backend.name.replace(/(^\w+).*/, '$1');
-    if (['localStorage', 'File'].indexOf(backend) > -1) {
-      backend = 'in-memory';
-    }
+    var backend = data.backend.name.replace(/(^\w+).*/, '$1')
+      , inmemory = ['localStorage', 'File'].indexOf(backend) > -1
+
     this.dataSet.push({
       backend: backend,
       total: rtime + ptime,
@@ -41,7 +40,7 @@ var resultsGraph = {
       source: data.source,
       results: data.results,
       periods: [
-        { y0: 0, y1: rtime, name: backend },
+        { y0: 0, y1: rtime, name: inmemory ? 'in-memory' : backend },
         { y0: rtime, y1: rtime + ptime, name: 'processing' }
       ]
     });
