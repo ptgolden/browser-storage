@@ -38,7 +38,6 @@ function FileSystemBackend() {
         writer.onwriteend = function (e) {
           reportAction('Wrote file ' + filename, start, Date.now());
           self.loadFile(filename, success);
-          if (success) success.call(self);
         };
         writer.onerror = errorhandler;
         writer.write(dataBlob);
