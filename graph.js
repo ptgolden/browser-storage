@@ -202,7 +202,7 @@ var resultsGraph = {
 
   openData: function () {
     var self = this
-      , data = JSON.stringify(self.dataSet)
+      , data = JSON.stringify(self.dataSet, null, '  ')
 
     window.open('data:application/json;base64,' + btoa(data));
   }
