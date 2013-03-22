@@ -14,6 +14,7 @@
     <script type="text/javascript" src="backends/indexeddb.js"></script>
     <script type="text/javascript" src="backends/localstorage.js"></script>
     <script type="text/javascript" src="backends/websql.js"></script>
+    <script type="text/javascript" src="backends/filesystem.js"></script>
 
     <script type="text/template" id="filedrop-template">
       <h3>Choose keyword fields for {{ filename }}</h3>
@@ -46,6 +47,7 @@
             <button data-backend="IndexedDB">IndexedDB</button>
             <button data-backend="localStorage">localStorage</button>
             <button data-backend="WebSQL">WebSQL</button>
+            <button data-backend="fileSystem">fileSystem</button>
           </div>
           <div id="selected-backend" style="display: none;">
             <span></span>

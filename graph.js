@@ -26,11 +26,14 @@ var resultsGraph = {
       y: d3.scale.linear().range([height - padding[0] - padding[2], 0]),
       color: d3.scale.ordinal().range(['red', 'blue', 'green', 'grey'])
     }
-    this.scales.color.domain(['localStorage', 'IndexedDB', 'WebSQL', 'processing'])
+    this.scales.color.domain(['in-memory', 'IndexedDB', 'WebSQL', 'processing'])
   },
 
   addResultSet: function (data, rtime, ptime) {
     var backend = data.backend.name.replace(/(^\w+).*/, '$1');
+    if (['localStorage', 'File'].indexOf(backend) > -1) {
+      backend = 'in-memory';
+    }
     this.dataSet.push({
       backend: backend,
       total: rtime + ptime,
@@ -153,7 +156,7 @@ var resultsGraph = {
       .attr('class', 'legend')
 
     legend.selectAll('rect.legend-item')
-        .data(['WebSQL', 'IndexedDB', 'localStorage', 'processing'])
+        .data(['in-memory', 'IndexedDB', 'WebSQL', 'processing'])
       .enter().append('rect')
       .attr('class', 'legend-item')
       .attr('width', 10)
@@ -163,7 +166,7 @@ var resultsGraph = {
       .style('fill', function (d) { return self.scales.color(d) })
 
     legend.selectAll('text')
-        .data(['WebSQL', 'IndexedDB', 'localStorage', 'processing'])
+        .data(['in-memory', 'IndexedDB', 'WebSQL', 'processing'])
       .enter().append('text')
       .attr('x', width - padding[1] - 73)
       .attr('y', function (d, i) { return (18 * i) + padding[0] + 12 })
