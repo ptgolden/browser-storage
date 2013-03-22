@@ -9,7 +9,7 @@ var resultsGraph = {
     var options = opts || {}
       , width = this.width = options.width || 700
       , height = this.height = options.height || 400
-      , padding = this.padding = options.padding || [12, 15, 150, 54]
+      , padding = this.padding = options.padding || [12, 15, 150, 64]
 
     this.svg = d3.select('#d3')
       .append('svg:svg')
@@ -72,7 +72,7 @@ var resultsGraph = {
     this.chart.selectAll('*').remove();
 
     // Remove title too (if it exists)
-    this.svg.selectAll('text').remove();
+    this.svg.selectAll('text, .legend').remove();
 
     if (title.length) {
       padding[0] += 24;
@@ -87,32 +87,6 @@ var resultsGraph = {
     }
 
     this.chart.attr('transform', 'translate(6,' + padding[0] + ')');
-
-    var yAxis = d3.svg.axis()
-      .scale(self.scales.y)
-      .orient('left')
-      .ticks(8);
-
-    this.chart.append('g')
-      .attr('class', 'axis')
-      .attr('transform', 'translate(' + padding[3] + ',0)')
-      .call(yAxis);
-
-    this.chart.append('text')
-      .attr('class', 'axis-label')
-      .attr('x', '15')
-      .attr('y', (height - padding[0] - padding[2])/2)
-      .attr('text-anchor', 'middle')
-      .attr('transform', 'rotate(-90,15,' + (height - padding[0] - padding[2])/2 + ')')
-      .text('Time (ms)')
-
-    var xAxis = this.chart.append('line')
-      .attr('class', 'axis')
-      .attr('x1', padding[3])
-      .attr('y1', height - padding[2] - padding[0])
-      .attr('x2', width - padding[1])
-      .attr('y2', height - padding[2] - padding[0])
-      .attr('stroke', 'black');
 
     var phrase = this.chart.selectAll('g.phrase')
         .data(this.dataSet)
@@ -147,8 +121,33 @@ var resultsGraph = {
       .style('font-weight', 'bold')
       .text(String)
 
+    var yAxis = d3.svg.axis()
+      .scale(self.scales.y)
+      .orient('left')
+      .ticks(8);
 
-    var legend = this.chart.append('g')
+    this.chart.append('g')
+      .attr('class', 'axis')
+      .attr('transform', 'translate(' + padding[3] + ',0)')
+      .call(yAxis);
+
+    this.chart.append('text')
+      .attr('class', 'axis-label')
+      .attr('x', '15')
+      .attr('y', (height - padding[0] - padding[2])/2)
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'rotate(-90,15,' + (height - padding[0] - padding[2])/2 + ')')
+      .text('Time (ms)')
+
+    var xAxis = this.chart.append('line')
+      .attr('class', 'axis')
+      .attr('x1', padding[3])
+      .attr('y1', height - padding[2] - padding[0])
+      .attr('x2', width - padding[1])
+      .attr('y2', height - padding[2] - padding[0])
+      .attr('stroke', 'black');
+
+    var legend = this.svg.append('g')
       .attr('class', 'legend')
 
     legend.selectAll('rect.legend-item')
@@ -158,13 +157,13 @@ var resultsGraph = {
       .attr('width', 10)
       .attr('height', 10)
       .attr('y', function (d, i) { return (16 * i) + padding[0] })
-      .attr('x', width - padding[1] - 85)
+      .attr('x', width - padding[1] - 77)
       .style('fill', function (d) { return self.scales.color(d) })
 
     legend.selectAll('text')
         .data(['WebSQL', 'IndexedDB', 'localStorage', 'processing'])
       .enter().append('text')
-      .attr('x', width - padding[1] - 72)
+      .attr('x', width - padding[1] - 63)
       .attr('y', function (d, i) { return (16 * i) + padding[0] })
       .attr('dy', '.9em')
       .style('font-family', '"Helvetica", sans-serif')
