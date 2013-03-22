@@ -8,7 +8,7 @@ var resultsGraph = {
   init: function (opts) {
     var options = opts || {}
       , width = this.width = options.width || 700
-      , height = this.height = options.height || 400
+      , height = this.height = options.height || 550
       , padding = this.padding = options.padding || [12, 15, 150, 64]
 
     this.svg = d3.select('#d3')
@@ -30,13 +30,15 @@ var resultsGraph = {
   },
 
   addResultSet: function (data, rtime, ptime) {
+    var backend = data.backend.name.replace(/(^\w+).*/, '$1');
     this.dataSet.push({
+      backend: backend,
       total: rtime + ptime,
       phrase: data.phrase,
       source: data.source,
       results: data.results,
       periods: [
-        { y0: 0, y1: rtime, name: data.backend.name.replace(/(^\w+).*/, '$1') },
+        { y0: 0, y1: rtime, name: backend },
         { y0: rtime, y1: rtime + ptime, name: 'processing' }
       ]
     });
@@ -156,18 +158,19 @@ var resultsGraph = {
       .attr('class', 'legend-item')
       .attr('width', 10)
       .attr('height', 10)
-      .attr('y', function (d, i) { return (16 * i) + padding[0] })
-      .attr('x', width - padding[1] - 77)
+      .attr('y', function (d, i) { return (18 * i) + padding[0] + 12 })
+      .attr('x', width - padding[1] - 87)
       .style('fill', function (d) { return self.scales.color(d) })
 
     legend.selectAll('text')
         .data(['WebSQL', 'IndexedDB', 'localStorage', 'processing'])
       .enter().append('text')
-      .attr('x', width - padding[1] - 63)
-      .attr('y', function (d, i) { return (16 * i) + padding[0] })
-      .attr('dy', '.9em')
+      .attr('x', width - padding[1] - 73)
+      .attr('y', function (d, i) { return (18 * i) + padding[0] + 12 })
+      .attr('dy', '.8em')
       .style('font-family', '"Helvetica", sans-serif')
-      .style('font-size', '10px')
+      .style('font-size', '12px')
+      .style('letter-spacing', '0.1em')
       .text(String)
 
     this.svg.selectAll('.axis path, .axis line, line.axis')
@@ -185,19 +188,23 @@ var resultsGraph = {
   },
 
   updateLink: function () {
-    var btn = document.getElementById('d3-save')
-      , svg
+    var svg
       , b64
 
     this.redraw();
+
     svg = document.getElementById('d3').innerHTML.trim();
     svg = svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
-    console.log(svg);
     b64 = 'data:image/svg+xml;base64,' + btoa(svg);
 
     window.open(b64);
+  },
 
-    return false;
+  openData: function () {
+    var self = this
+      , data = JSON.stringify(self.dataSet)
+
+    window.open('data:application/json;base64,' + btoa(data));
   }
 
 }
