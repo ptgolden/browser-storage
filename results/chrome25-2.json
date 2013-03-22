@@ -1,0 +1,344 @@
+[
+  {
+    "backend": "localStorage",
+    "total": 77.39999999999999,
+    "phrase": "Al",
+    "source": "viaf_items_100k",
+    "results": 3790,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 63.8,
+        "name": "localStorage"
+      },
+      {
+        "y0": 63.8,
+        "y1": 77.39999999999999,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 66.80000000000001,
+    "phrase": "Ale",
+    "source": "viaf_items_100k",
+    "results": 671,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 64.4,
+        "name": "localStorage"
+      },
+      {
+        "y0": 64.4,
+        "y1": 66.80000000000001,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 63,
+    "phrase": "Alex",
+    "source": "viaf_items_100k",
+    "results": 492,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 61.6,
+        "name": "localStorage"
+      },
+      {
+        "y0": 61.6,
+        "y1": 63,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 62,
+    "phrase": "Alexa",
+    "source": "viaf_items_100k",
+    "results": 367,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 60.6,
+        "name": "localStorage"
+      },
+      {
+        "y0": 60.6,
+        "y1": 62,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 55,
+    "phrase": "Alexander",
+    "source": "viaf_items_100k",
+    "results": 59,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 54.4,
+        "name": "localStorage"
+      },
+      {
+        "y0": 54.4,
+        "y1": 55,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 54.4,
+    "phrase": "Alexander Matt",
+    "source": "viaf_items_100k",
+    "results": 2,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 53.8,
+        "name": "localStorage"
+      },
+      {
+        "y0": 53.8,
+        "y1": 54.4,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 1996.3999999999999,
+    "phrase": "Al",
+    "source": "viaf_items_100k",
+    "results": 3790,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 1979.8,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 1979.8,
+        "y1": 1996.3999999999999,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 203.39999999999998,
+    "phrase": "Ale",
+    "source": "viaf_items_100k",
+    "results": 671,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 199.2,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 199.2,
+        "y1": 203.39999999999998,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 140.6,
+    "phrase": "Alex",
+    "source": "viaf_items_100k",
+    "results": 492,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 137.2,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 137.2,
+        "y1": 140.6,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 96.80000000000001,
+    "phrase": "Alexa",
+    "source": "viaf_items_100k",
+    "results": 367,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 94.4,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 94.4,
+        "y1": 96.80000000000001,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 16.6,
+    "phrase": "Alexander",
+    "source": "viaf_items_100k",
+    "results": 59,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 16,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 16,
+        "y1": 16.6,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 16.6,
+    "phrase": "Alexander Matt",
+    "source": "viaf_items_100k",
+    "results": 2,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 15.4,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 15.4,
+        "y1": 16.6,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "WebSQL",
+    "total": 985.8000000000001,
+    "phrase": "Al",
+    "source": "viaf_items_100k",
+    "results": 3790,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 966.2,
+        "name": "WebSQL"
+      },
+      {
+        "y0": 966.2,
+        "y1": 985.8000000000001,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "WebSQL",
+    "total": 914.8,
+    "phrase": "Ale",
+    "source": "viaf_items_100k",
+    "results": 671,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 910.8,
+        "name": "WebSQL"
+      },
+      {
+        "y0": 910.8,
+        "y1": 914.8,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "WebSQL",
+    "total": 917.8,
+    "phrase": "Alex",
+    "source": "viaf_items_100k",
+    "results": 492,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 916,
+        "name": "WebSQL"
+      },
+      {
+        "y0": 916,
+        "y1": 917.8,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "WebSQL",
+    "total": 904.8000000000001,
+    "phrase": "Alexa",
+    "source": "viaf_items_100k",
+    "results": 367,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 903.6,
+        "name": "WebSQL"
+      },
+      {
+        "y0": 903.6,
+        "y1": 904.8000000000001,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "WebSQL",
+    "total": 890.1999999999999,
+    "phrase": "Alexander",
+    "source": "viaf_items_100k",
+    "results": 59,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 889.8,
+        "name": "WebSQL"
+      },
+      {
+        "y0": 889.8,
+        "y1": 890.1999999999999,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "WebSQL",
+    "total": 891.4,
+    "phrase": "Alexander Matt",
+    "source": "viaf_items_100k",
+    "results": 2,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 890,
+        "name": "WebSQL"
+      },
+      {
+        "y0": 890,
+        "y1": 891.4,
+        "name": "processing"
+      }
+    ]
+  }
+]
