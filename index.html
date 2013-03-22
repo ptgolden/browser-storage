@@ -81,7 +81,27 @@
       </div>
     </section>
 
-    <section id="d3">
+    <section>
+      <div id="d3-opts">
+        <div>
+          <span>Chart title (optional): </span>
+          <input id="d3-chart-title" type="text"></input>
+        </div>
+        <div>
+          <span>Upper bound (blank for maximum in dataset): </span>
+          <input id="d3-upper-bound" type="text"></input>
+        </div>
+        <div>
+          <span>Width (blank for default): </span>
+          <input id="d3-width" type="text"></input>
+        </div>
+        <div>
+          <button href="#" onclick="resultsGraph.redraw(); return false;">Update</button>
+          <button id="d3-save" href="#" onclick="resultsGraph.updateLink(); return true;">Open chart in new page</button>
+        </div>
+      </div>
+      <div id="d3">
+      </div>
     </section>
 
   </body>

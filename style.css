@@ -82,25 +82,6 @@ section:not(:last-of-type) { border-bottom: 1px solid #333; }
 }
 
 
-/*
- * SVG
- *
- */
-
-.barchart rect {
-    shape-rendering: crispEdges;
+#d3-opts {
+    margin-bottom: 2em;
 }
-
-.axis path,
-.axis line,
-line.axis {
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
-}
-
-.axis text {
-    font-size: 10px;
-    font-family: "Helvetica", sans-serif;
-}
-
