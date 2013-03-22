@@ -30,7 +30,7 @@ var resultsGraph = {
   },
 
   addResultSet: function (data, rtime, ptime) {
-    this.dataSet.unshift({
+    this.dataSet.push({
       total: rtime + ptime,
       phrase: data.phrase,
       source: data.source,
