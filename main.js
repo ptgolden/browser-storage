@@ -171,6 +171,9 @@ $(document).on('ready', function () {
     case 'WebSQL':
       backend = new WebSQLBackend();
       break;
+    case 'fileSystem':
+      backend = new FileSystemBackend();
+      break;
     }
 
     if (!backend.supported) {
