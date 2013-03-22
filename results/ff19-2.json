@@ -1,0 +1,230 @@
+[
+  {
+    "backend": "localStorage",
+    "total": 104.8,
+    "phrase": "Al",
+    "source": "viaf_items_100k",
+    "results": 3790,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 82.6,
+        "name": "localStorage"
+      },
+      {
+        "y0": 82.6,
+        "y1": 104.8,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 80.6,
+    "phrase": "Ale",
+    "source": "viaf_items_100k",
+    "results": 671,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 76.6,
+        "name": "localStorage"
+      },
+      {
+        "y0": 76.6,
+        "y1": 80.6,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 77.4,
+    "phrase": "Alex",
+    "source": "viaf_items_100k",
+    "results": 492,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 74.2,
+        "name": "localStorage"
+      },
+      {
+        "y0": 74.2,
+        "y1": 77.4,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 77,
+    "phrase": "Alexa",
+    "source": "viaf_items_100k",
+    "results": 367,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 74.6,
+        "name": "localStorage"
+      },
+      {
+        "y0": 74.6,
+        "y1": 77,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 81.8,
+    "phrase": "Alexander",
+    "source": "viaf_items_100k",
+    "results": 59,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 81,
+        "name": "localStorage"
+      },
+      {
+        "y0": 81,
+        "y1": 81.8,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "localStorage",
+    "total": 70.6,
+    "phrase": "Alexander Matt",
+    "source": "viaf_items_100k",
+    "results": 2,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 70.6,
+        "name": "localStorage"
+      },
+      {
+        "y0": 70.6,
+        "y1": 70.6,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 2864.8,
+    "phrase": "Al",
+    "source": "viaf_items_100k",
+    "results": 3790,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 2836.4,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 2836.4,
+        "y1": 2864.8,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 335.2,
+    "phrase": "Ale",
+    "source": "viaf_items_100k",
+    "results": 671,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 328.8,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 328.8,
+        "y1": 335.2,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 330.79999999999995,
+    "phrase": "Alex",
+    "source": "viaf_items_100k",
+    "results": 492,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 325.4,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 325.4,
+        "y1": 330.79999999999995,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 242.39999999999998,
+    "phrase": "Alexa",
+    "source": "viaf_items_100k",
+    "results": 367,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 238.2,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 238.2,
+        "y1": 242.39999999999998,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 61.2,
+    "phrase": "Alexander",
+    "source": "viaf_items_100k",
+    "results": 59,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 60,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 60,
+        "y1": 61.2,
+        "name": "processing"
+      }
+    ]
+  },
+  {
+    "backend": "IndexedDB",
+    "total": 47.800000000000004,
+    "phrase": "Alexander Matt",
+    "source": "viaf_items_100k",
+    "results": 2,
+    "periods": [
+      {
+        "y0": 0,
+        "y1": 47.2,
+        "name": "IndexedDB"
+      },
+      {
+        "y0": 47.2,
+        "y1": 47.800000000000004,
+        "name": "processing"
+      }
+    ]
+  }
+]
