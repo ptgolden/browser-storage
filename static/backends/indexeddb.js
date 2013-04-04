@@ -59,7 +59,7 @@ function IDBBackend(name) {
     data.items.forEach(function (item) { objectStore.put(item) });
   }
 
-  this.performSearch = function (source, phrase, success) {
+  this.performSearch = function (source, phrase, success, limit) {
     var results = new SearchResultSet(source, phrase)
       , firstWord = results.phrase.tokens[0].toLowerCase()
       , vals = []

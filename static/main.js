@@ -1,9 +1,9 @@
-var backend = null
+var backend = null;
 
 var sources = {
   'topics': {
     'method': 'ajax',
-    'file': 'data/topics.json',
+    'file': '/static/data/topics.json',
     'identifier': 'name',
     'keyword_fields': ['name', 'aliases']
   }
