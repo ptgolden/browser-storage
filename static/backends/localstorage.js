@@ -23,7 +23,8 @@ function localStorageBackend() {
             + 'but this amount of data would not be able to be persisted.</strong>');
       }
     }
-    self.cachedData[name] = data;
+    if (!self.cachedData[name]) { self.cachedData[name] = {'items': []}; }
+    self.cachedData[name].items = self.cachedData[name].items.concat(data.items);
     msg = 'Loaded ' + data.items.length + ' records from ' + file;
     reportAction(msg, start, Date.now());
     if (success) success.call(self);

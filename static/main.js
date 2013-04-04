@@ -6,6 +6,13 @@ var sources = {
     'file': '/static/data/topics.json',
     'identifier': 'name',
     'keyword_fields': ['name', 'aliases']
+  },
+  'viaf': {
+    'method': 'stream',
+    'file': 'viaf_items_1M.json',
+    'identifier': 'viaf',
+    'identifier': 'primary_name',
+    'keyword_fields': ['primary_name', 'alternate_names']
   }
 }
 
@@ -57,7 +64,39 @@ function loadData(backend, sourceName, success) {
     request.send();
   } else if (source.method === 'file') {
     backend.loadData(sourceName, source.file, source.data, success);
+  } else if (source.method === 'stream') {
+    streamdata(backend, sourceName, success);
   }
+}
+
+function streamdata(backend, sourceName, success, limit) {
+  var source = sources[sourceName]
+    , limit = limit || 200000
+    , chunksize = 10000
+    , eventsource = new EventSource('/streamdata?limit=' + limit + '&chunksize=' + chunksize)
+    , i = 0
+
+  reportAction('loading ' + limit + ' records from ' + source.file);
+
+  eventsource.onmessage = function (e) {
+    var items = JSON.parse(e.data.trim());
+    items.items.forEach(function (item) {
+      item.keywords = getAllKeywords(item, source.keyword_fields);
+    });
+    backend.loadData(sourceName, source.file, items, function(backend) {
+      i++;
+      if (items.final) {
+        eventsource.close();
+        reportAction(limit + ' records loaded from ' + source.file);
+        success.call(backend);
+      } else {
+        reportAction(
+          ('' + ((100 * i * chunksize) / limit)).slice(0, 4)
+          + '% of ' + limit + ' records loaded');
+      }
+    });
+  }
+
 }
 
 function backendSelected() {
