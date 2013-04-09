@@ -30,7 +30,7 @@ def deploy():
         run('touch app/__init__.py')
     with cd(os.path.join(env.project_path, 'app', 'static', 'data')):
         run('mkdir -p ../../../data')
-        run('ln -s ../../../data/*json .')
+        run('ln -s ../../../data/*json* .')
     run('{project_path}/apache2/bin/restart'.format(**env))
     local('rm repo.zip')
     run('rm {project_path}/repo.zip'.format(**env))
