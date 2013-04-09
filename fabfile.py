@@ -1,3 +1,4 @@
+import os
 from fabric.api import *
 
 try:
@@ -27,6 +28,9 @@ def deploy():
         run('test -d uploads.bak && mv uploads.bak app/uploads',
             warn_only=True)
         run('touch app/__init__.py')
+    with cd(os.path.join(env.project_path, 'app', 'static', 'data')):
+        run('mkdir -p ../../../data')
+        run('ln -s ../../../data/*json .')
     run('{project_path}/apache2/bin/restart'.format(**env))
     local('rm repo.zip')
-
+    run('rm {project_path}/repo.zip'.format(**env))
