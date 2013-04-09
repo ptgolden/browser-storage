@@ -73,7 +73,7 @@ function streamdata(backend, sourceName, success, limit) {
   var source = sources[sourceName]
     , limit = limit || 200000
     , chunksize = 10000
-    , eventsource = new EventSource('/streamdata?limit=' + limit + '&chunksize=' + chunksize)
+    , eventsource = new EventSource('streamdata?limit=' + limit + '&chunksize=' + chunksize)
     , i = 0
 
   reportAction('loading ' + limit + ' records from ' + source.file);
