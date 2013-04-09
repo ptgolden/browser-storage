@@ -8,6 +8,15 @@ from flask import Flask, Response, request, send_file
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
+class WebFactionMiddleware(object):
+    def __init__(self, app):
+        self.app = app
+    def __call__(self, environ, start_response):
+        environ['SCRIPT_NAME'] = '/browser-storage'
+        return self.app(environ, start_response)
+app.wsgi_app = WebFactionMiddleware(app.wsgi_app)
+
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOADS_DIR = os.path.join(ROOT_DIR, 'uploads')
 if not os.path.exists(UPLOADS_DIR):
