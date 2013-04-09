@@ -207,6 +207,26 @@ var resultsGraph = {
       , data = JSON.stringify(self.dataSet, null, '  ')
 
     window.open('data:application/json;base64,' + btoa(data));
+  },
+
+  saveData: function() {
+    var self = this
+      , req = new XMLHttpRequest()
+      , file = self.SERVER_FILE_NAME
+      , method = file ? 'put' : 'post'
+      , url = file ? '/data/' + file : '/data'
+
+    req.onload = function () {
+      data = JSON.parse(this.responseText);
+      self.SERVER_FILE_NAME = data.item_id;
+    }
+    req.onerror = function (e) {
+      console.log('error', e);
+    }
+    req.open(method, url);
+    req.setRequestHeader('Content-Type', 'application/json');
+    req.send(JSON.stringify({'data': self.dataSet}));
+
   }
 
 }

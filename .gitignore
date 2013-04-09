@@ -1,3 +1,5 @@
 *.swp
 *.pyc
 venv
+uploads
+fabfile_local.py
