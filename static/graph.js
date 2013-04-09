@@ -214,7 +214,7 @@ var resultsGraph = {
       , req = new XMLHttpRequest()
       , file = self.SERVER_FILE_NAME
       , method = file ? 'put' : 'post'
-      , url = file ? '/data/' + file : '/data'
+      , url = file ? 'data/' + file : 'data'
 
     req.onload = function () {
       data = JSON.parse(this.responseText);
