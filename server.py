@@ -81,9 +81,12 @@ def stream_data():
 
     LIMIT = int(request.args.get('limit', '50000'))
     CHUNK_SIZE = int(request.args.get('chunksize', '5000'))
+    SRC = request.args.get('src', 'viaf')
 
     def generate(items=[]):
-        with gzip.open('static/data/viaf_items_1M.json.gz', 'r') as datafile:
+        data_file = os.path.join(
+            ROOT_DIR, 'static', 'data', '{}_items_1M.json.gz'.format(SRC))
+        with gzip.open(data_file, 'r') as datafile:
             datafile.next() # skip initial {"items": [
             for i, record in enumerate(datafile):
                 if i == LIMIT or len(items) == CHUNK_SIZE:
