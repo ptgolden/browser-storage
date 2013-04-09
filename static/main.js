@@ -58,6 +58,7 @@ function loadData(backend, sourceName, success) {
       data.items.forEach(function(item) {
         item.keywords = getAllKeywords(item, source.keyword_fields);
       });
+      sources[sourceName].totalItems = data.items.length;
       backend.loadData(sourceName, source.file, data, success);
     }
     request.open('get', source.file);
@@ -71,10 +72,18 @@ function loadData(backend, sourceName, success) {
 
 function streamdata(backend, sourceName, success, limit) {
   var source = sources[sourceName]
-    , limit = limit || 200000
+    , limit = document.querySelector('input[name="limit"]').value
     , chunksize = 10000
-    , eventsource = new EventSource('streamdata?limit=' + limit + '&chunksize=' + chunksize)
+    , eventsource
     , i = 0
+
+  limit = parseInt(limit, 10) * 1000;
+  if (limit > 999000) {
+    reportAction('Highest limit is 999,000 records');
+    return;
+  }
+
+  eventsource = new EventSource('streamdata?limit=' + limit + '&chunksize=' + chunksize)
 
   reportAction('loading ' + limit + ' records from ' + source.file);
 
@@ -87,6 +96,7 @@ function streamdata(backend, sourceName, success, limit) {
       i++;
       if (items.final) {
         eventsource.close();
+        sources[sourceName].totalItems = limit;
         reportAction(limit + ' records loaded from ' + source.file);
         success.call(backend);
       } else {

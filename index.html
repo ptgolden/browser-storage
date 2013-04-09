@@ -61,6 +61,12 @@
           <button class="load-data" data-name="viaf" disabled="disabled">VIAF topics</button>
         </div>
 
+        <div id="data-limit">
+          <label>Limit (thousands): </label>
+          <input name="limit" type="text" value="100" style="width: 75px;" />
+          <span>(used for VIAF &amp; GeoNames data)</span>
+        </div>
+
         <div id="search">
           <label>Search: </label>
           <input id="textinput" disabled="disabled" />
@@ -85,24 +91,22 @@
     </section>
 
     <section>
-      <div>
-        <span>Sample results for phrase "Alexander Matt" from 100k VIAF records: </span>
-        <a href="results/alexander-matt_2-char.html">min 2 chars.</a> 
-        <a href="results/alexander-matt_3-char.html">min 3 chars.</a> 
-      </div>
-      <br />
       <div id="d3-opts">
         <div>
+          <span>Browser: </span>
+          <input id="d3-browser" type="text" />
+        </div>
+        <div>
           <span>Chart title (optional): </span>
-          <input id="d3-chart-title" type="text"></input>
+          <input id="d3-chart-title" type="text" />
         </div>
         <div>
           <span>Upper bound (blank for maximum in dataset): </span>
-          <input id="d3-upper-bound" type="text"></input>
+          <input id="d3-upper-bound" type="text" />
         </div>
         <div>
           <span>Width (blank for default): </span>
-          <input id="d3-width" type="text"></input>
+          <input id="d3-width" type="text" />
         </div>
         <div>
           <button href="#" onclick="resultsGraph.redraw(); return false;">Update</button>

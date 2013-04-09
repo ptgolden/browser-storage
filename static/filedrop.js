@@ -101,6 +101,7 @@ $(document).ready(function() {
 
     sources[name] = {
       'method': 'file',
+      'totalItems': data.items.length,
       'file': filename,
       'identifier': identifier,
       'keyword_fields': kwfields,

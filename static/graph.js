@@ -32,12 +32,15 @@ var resultsGraph = {
   addResultSet: function (data, rtime, ptime) {
     var backend = data.backend.name.replace(/(^\w+).*/, '$1')
       , inmemory = ['localStorage', 'File'].indexOf(backend) > -1
+      , browser = document.getElementById('d3-browser').value
 
     this.dataSet.push({
       backend: backend,
+      browser: browser || 'undefined',
       total: rtime + ptime,
       phrase: data.phrase,
       source: data.source,
+      sourceItems: sources[data.source].totalItems,
       results: data.results,
       periods: [
         { y0: 0, y1: rtime, name: inmemory ? 'in-memory' : backend },
@@ -215,6 +218,12 @@ var resultsGraph = {
       , file = self.SERVER_FILE_NAME
       , method = file ? 'put' : 'post'
       , url = file ? 'data/' + file : 'data'
+      , browser = document.getElementById('d3-browser').value
+
+    if (!browser) {
+      alert('Enter a browser name');
+      return;
+    }
 
     req.onload = function () {
       data = JSON.parse(this.responseText);
@@ -225,7 +234,10 @@ var resultsGraph = {
     }
     req.open(method, url);
     req.setRequestHeader('Content-Type', 'application/json');
-    req.send(JSON.stringify({'data': self.dataSet}));
+    req.send(JSON.stringify({
+      'data': self.dataSet,
+      'browser': browser || 'undefined'
+    }));
 
   }
 

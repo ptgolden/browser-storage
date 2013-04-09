@@ -33,7 +33,8 @@ def add_item(request, filename=None):
     if filename is None:
         now = time.time()
         browser = req.get('browser', 'undefined')
-        filename = '{}_{}.json'.format(now, browser)
+        browser = re.sub('[^\w]', '_', browser)
+        filename = '{}-{}.json'.format(browser, now)
 
     with open(os.path.join(UPLOADS_DIR, filename), 'w') as outfile:
         outfile.write(json.dumps(data))
@@ -47,10 +48,10 @@ def data():
         added_file = add_item(request)
         return Response(json.dumps({
             'item_id': added_file,
-            'item_url': '/data/{}'.format(added_file)
+            'item_url': 'data/{}'.format(added_file)
         }), content_type='application/json')
 
-    items = [{'item_id': f, 'item_url': '/data/{}'.format(f)}
+    items = [{'item_id': f, 'item_url': 'data/{}'.format(f)}
              for f in os.listdir(UPLOADS_DIR) if f.endswith('.json')]
     return Response(
         json.dumps({'items': items}), content_type='application/json')
@@ -66,7 +67,7 @@ def datum(filename):
         changed_file = add_item(request, filename=filename)
         return Response(json.dumps({
             'item_id': changed_file,
-            'item_url': '/data/{}'.format(changed_file)
+            'item_url': 'data/{}'.format(changed_file)
         }), content_type='application/json')
     if request.method == 'DELETE':
         os.remove(item_path)
