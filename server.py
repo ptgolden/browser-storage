@@ -150,7 +150,7 @@ def stream_data():
                         'items': items
                     }
                     items = []
-                    yield 'data: {}\n\n'.format(json.dumps(out))
+                    yield 'retry: 1000000000\ndata: {}\n\n'.format(json.dumps(out))
                 if i == LIMIT:
                     return
                 else:
