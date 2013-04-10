@@ -110,7 +110,8 @@ def data():
     items = [format_row(row) for row
              in g.db.cursor().execute('select * from data').fetchall()]
     return Response(
-        json.dumps({'items': items}), content_type='application/json')
+        json.dumps({'items': items}, indent=2),
+        content_type='application/json')
 
 @app.route('/data/<item_id>', methods=['GET', 'PUT', 'DELETE'])
 def datum(item_id):
