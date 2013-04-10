@@ -13,6 +13,12 @@ var sources = {
     'identifier': 'viaf',
     'identifier': 'primary_name',
     'keyword_fields': ['primary_name', 'alternate_names']
+  },
+  'geonames': {
+    'method': 'stream',
+    'file': 'geonames_items_1M.json',
+    'identifier': 'name',
+    'keyword_fields': ['name', 'alternate_names']
   }
 }
 
@@ -83,7 +89,10 @@ function streamdata(backend, sourceName, success, limit) {
     return;
   }
 
-  eventsource = new EventSource('streamdata?limit=' + limit + '&chunksize=' + chunksize)
+  eventsource = new EventSource(
+      'streamdata?limit=' + limit + 
+      '&chunksize=' + chunksize +
+      '&src=' + sourceName)
 
   reportAction('loading ' + limit + ' records from ' + source.file);
 
