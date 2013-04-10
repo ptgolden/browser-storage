@@ -227,13 +227,17 @@ var resultsGraph = {
       , method = file ? 'put' : 'post'
       , url = file ? 'data/' + file : 'data'
       , browser = document.getElementById('d3-browser').value
+      , $stat = $('#server-status')
 
     if (!browser) {
       alert('Enter a browser name');
       return;
     }
 
+    $stat.text('loading...');
+
     req.onload = function () {
+      $stat.text('OK');
       data = JSON.parse(this.responseText);
       self.SERVER_FILE_NAME = data.id;
     }

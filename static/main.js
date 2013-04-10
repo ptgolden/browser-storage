@@ -145,9 +145,11 @@ function renderResults(results) {
     .html('')
     .append('<p><strong>' + msg + '</strong> ' + btn + '</p>')
     .append(Array.prototype.join.call(results, ''))
-    .find('.graph-result').click(function () {
+    .find('.graph-result').click(function (e) {
       var iterations = 5
         , data
+
+      e.preventDefault();
      
       data = {
         backend: backend,
@@ -211,12 +213,16 @@ function enableSearch(source) {
 }
 
 $(document).on('ready', function () {
-  $('#delete-db').on('click', function () {
+  $('#delete-db').on('click', function (e) {
+    e.preventDefault();
     backend.teardown(backendDestroyed);
   });
 
-  $('#backend-select').on('click', 'button', function () {
+  $('#backend-select').on('click', 'button', function (e) {
     var selectedBackend = $(this).data('backend');
+
+    e.preventDefault();
+
     backend = null;
 
     switch (selectedBackend) {
@@ -243,8 +249,9 @@ $(document).on('ready', function () {
 
   });
   
-  $('#controls').on('click', '.load-data:enabled', function () {
+  $('#controls').on('click', '.load-data:enabled', function (e) {
     var source = $(this).data('name');
+    e.preventDefault();
     reportAction('Loading data for ' + source);
     loadData(backend, source, function () {
       enableSearch(source);
