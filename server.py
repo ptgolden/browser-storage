@@ -1,9 +1,16 @@
+from contextlib import closing
 import gzip
 import json
 import os
 import re
+import sqlite3
 import time
-from flask import Flask, Response, request, send_file
+from flask import Flask, Response, g, request, send_file
+
+
+#########
+# Setup #
+#########
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -16,70 +23,116 @@ class WebFactionMiddleware(object):
         return self.app(environ, start_response)
 app.wsgi_app = WebFactionMiddleware(app.wsgi_app)
 
-
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOADS_DIR = os.path.join(ROOT_DIR, 'uploads')
 if not os.path.exists(UPLOADS_DIR):
     os.mkdir(UPLOADS_DIR)
 
+
+###################
+# Database config #
+###################
+
+DATABASE = os.path.join(ROOT_DIR, 'database.db')
+
+def connect_db():
+    return sqlite3.connect(DATABASE)
+
+@app.before_request
+def before_request():
+    g.db = connect_db()
+
+@app.teardown_request
+def teardown_request(exception):
+    if hasattr(g, 'db'):
+        g.db.close()
+
+def init_db():
+    with closing(connect_db()) as db:
+        c = db.cursor()
+        c.execute(
+            'create table data (' +
+            'id integer primary key, ' +
+            't timestamp default current_timestamp, ' +
+            'browser text, ' +
+            'data text)'
+        )
+        db.commit()
+
+def add_item(request, item_id=None):
+    req = json.loads(request.data)
+    data = req.get('data')
+    browser = req.get('browser', 'undefined')
+    datas = json.dumps(data)
+
+    cur = g.db.cursor()
+    if item_id is None:
+        cur.execute('insert into data (data, browser) values (?, ?)',
+                    (datas, browser))
+        item_id = cur.lastrowid
+    else:
+        cur.execute('update data set data=?, browser=? where id=?',
+                    (datas, browser, item_id))
+    g.db.commit()
+    return item_id
+
+def format_row(row):
+    item_id, time, browser, data = row
+    return {
+        'id': item_id,
+        'url': 'data/{}'.format(item_id),
+        'browser': browser,
+        'data': json.loads(data)
+    }
+
+def get_row(item_id):
+    item = g.db.cursor()\
+            .execute('select * from data where id=?', (item_id,))\
+            .fetchone()
+    return item
+
+
+###########
+# Routing #
+###########
+
 @app.route('/')
 def root():
     return send_file('index.html', mimetype="text/html")
 
-def add_item(request, filename=None):
-    req = json.loads(request.data)
-    data = req.get('data')
-
-    if filename is None:
-        now = time.time()
-        browser = req.get('browser', 'undefined')
-        browser = re.sub('[^\w]', '_', browser)
-        filename = '{}-{}.json'.format(browser, now)
-
-    with open(os.path.join(UPLOADS_DIR, filename), 'w') as outfile:
-        outfile.write(json.dumps(data))
-
-    return filename
-
-
 @app.route('/data', methods=['GET', 'POST'])
 def data():
     if request.method == 'POST':
-        added_file = add_item(request)
-        return Response(json.dumps({
-            'item_id': added_file,
-            'item_url': 'data/{}'.format(added_file)
-        }), content_type='application/json')
-
-    items = [{'item_id': f, 'item_url': 'data/{}'.format(f)}
-             for f in os.listdir(UPLOADS_DIR) if f.endswith('.json')]
+        added_item_id = add_item(request)
+        return Response(
+            json.dumps(format_row(get_row(added_item_id))),
+            content_type='application/json')
+    items = [format_row(row) for row
+             in g.db.cursor().execute('select * from data').fetchall()]
     return Response(
         json.dumps({'items': items}), content_type='application/json')
 
-@app.route('/data/<filename>', methods=['GET', 'PUT', 'DELETE'])
-def datum(filename):
-    item_path = os.path.join(UPLOADS_DIR, filename)
-    if not os.path.exists(item_path):
+@app.route('/data/<item_id>', methods=['GET', 'PUT', 'DELETE'])
+def datum(item_id):
+    item = get_row(item_id)
+    if item is None:
         return Response(status='404 NOT FOUND')
-    if not os.path.abspath(item_path).startswith(UPLOADS_DIR):
-        return Response(status='400 BAD REQUEST')
-    if request.method == 'PUT':
-        changed_file = add_item(request, filename=filename)
-        return Response(json.dumps({
-            'item_id': changed_file,
-            'item_url': 'data/{}'.format(changed_file)
-        }), content_type='application/json')
-    if request.method == 'DELETE':
-        os.remove(item_path)
-        return Response()
-    with open(item_path) as item:
-        data = item.read()
-        return Response(data, content_type='application/json')
 
+    if request.method == 'PUT':
+        add_item(request, item_id=item_id)
+        item = get_row(item_id)
+        return Response(
+            json.dumps(format_row(item)), content_type="application/json")
+    elif request.method == 'DELETE':
+        g.db.cursor().execute('delete from data where id=?', (item_id,))
+        g.db.commit()
+        return Response()
+    else:
+        return Response(
+            json.dumps(format_row(item)), content_type='application/json')
 
 @app.route('/streamdata')
 def stream_data():
-
     LIMIT = int(request.args.get('limit', '50000'))
     CHUNK_SIZE = int(request.args.get('chunksize', '5000'))
     SRC = request.args.get('src', 'viaf')

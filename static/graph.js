@@ -33,10 +33,18 @@ var resultsGraph = {
     var backend = data.backend.name.replace(/(^\w+).*/, '$1')
       , inmemory = ['localStorage', 'File'].indexOf(backend) > -1
       , browser = document.getElementById('d3-browser').value
+      , title = document.getElementById('d3-chart-title').value
+
+    if (browser) {
+      this.dataSet.forEach(function(item) {
+        item.browser = browser;
+      });
+    }
 
     this.dataSet.push({
       backend: backend,
       browser: browser || 'undefined',
+      title: title || '',
       total: rtime + ptime,
       phrase: data.phrase,
       source: data.source,
@@ -227,7 +235,7 @@ var resultsGraph = {
 
     req.onload = function () {
       data = JSON.parse(this.responseText);
-      self.SERVER_FILE_NAME = data.item_id;
+      self.SERVER_FILE_NAME = data.id;
     }
     req.onerror = function (e) {
       console.log('error', e);

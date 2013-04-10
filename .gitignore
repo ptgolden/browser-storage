@@ -3,3 +3,4 @@
 venv
 uploads
 fabfile_local.py
+database.db

@@ -21,13 +21,14 @@ def deploy():
     local('git archive -o repo.zip HEAD')
     put('repo.zip', env.project_path)
     with cd(env.project_path):
-        run('test -d app/uploads && cp -r app/uploads uploads.bak',
+        run('test -f app/database.db && cp app/database.db database.db.bak',
             warn_only=True)
         run('rm -rf app')
         run('unzip repo.zip -d app')
-        run('test -d uploads.bak && mv uploads.bak app/uploads',
+        run('test -f database.db.bak && mv database.db.bak app/database.db',
             warn_only=True)
-        run('touch app/__init__.py')
+        run('test ! -f app/database.db && cd app && ' + 
+            'python2.7 -c "from server import init_db; init_db()"', warn_only=True)
     with cd(os.path.join(env.project_path, 'app', 'static', 'data')):
         run('mkdir -p ../../../data')
         run('ln -s ../../../data/*json* .')
