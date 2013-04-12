@@ -27,7 +27,7 @@ function formatTemplate(template, dict) {
     var name = match.replace(/[{} ]/g, '')
       , val = dict.hasOwnProperty(name) && dict[name]
 
-    if (!val) return match;
+    if (val === undefined || val === null) return match;
     if (Array.isArray(val)) return val.join(' ');
     return val;
 
