@@ -1,3 +1,4 @@
+from collections import defaultdict
 from contextlib import closing
 import gzip
 import json
@@ -157,6 +158,63 @@ def stream_data():
                     items.append(json.loads(re.sub(',\s*$', '', record)))
 
     return Response(generate(), content_type='text/event-stream')
+
+def get_os(string):
+    if 'Linux' in string:
+        return ('Linux', 'Linux')
+    if 'iPad Mini' in string:
+        return ('iPad Mini', 'iPad Mini')
+    if 'Nexus 7' in string:
+        return ('Nexus 7', 'Nexus 7')
+    if 'Macbook Pro' in string:
+        return ('OSX (MBP)', 'Macbook Pro')
+    if 'Windows 7' in string:
+        return ('Windows 7', 'Windows 7')
+    else:
+        return ('unrecognized', string)
+
+@app.route('/results')
+def show_results():
+    all_rows = g.db.cursor().execute('select * from data').fetchall()
+    fmt_records = []
+
+    for _, _, browser, data in all_rows:
+        tests = json.loads(data)
+        if len(tests) <= 3: continue
+        for test in tests:
+            browser = 'Windows 7, IE10' if browser == 'IE10' else browser
+            fmt_test = test.copy()
+            del fmt_test['periods']
+            del fmt_test['title']
+            os, string = get_os(browser)
+            fmt_test['os'] = os
+            fmt_test['browser'] = browser.replace(string, '').replace(',', '')\
+                    .strip().rstrip()
+            fmt_test['phrase'] = fmt_test['phrase'].lower()
+            fmt_records.append(fmt_test)
+
+    if not request.args.get('grouped', False):
+        return Response(json.dumps({'results': fmt_records}, indent=2),
+                        content_type='application/json')
+
+    grouped = defaultdict(list)
+    for record in fmt_records:
+        if not record['phrase'].startswith('ca'): continue
+        grouped[(record['phrase'], record['sourceItems'])].append(record)
+    groupedl = []
+    for grp in grouped:
+        phrase, no_items = grp
+        grouped[grp].sort(key=lambda r: r['total'])
+        groupedl.append({
+            'phrase': phrase,
+            'no_items': no_items,
+            'tests': grouped[grp]
+        })
+        groupedl.sort(key=lambda r: r['phrase'])
+        groupedl.sort(key=lambda r: r['no_items'])
+    return Response(json.dumps({'results': groupedl}, indent=2),
+                    content_type='application/json')
+
 
 if __name__ == '__main__':
     app.run(port=8080)
