@@ -12,9 +12,21 @@
  * General spacing
  *
  */
+body { padding: 0; margin: 0; }
 section { margin: 1em; }
 section:not(:last-of-type) { border-bottom: 1px solid #333; }
 
+header {
+  font-family: "sans-serif";
+  font-size: 14px;
+  text-align: center;
+  padding: 2em;
+  background: #eee;
+  box-shadow: 0 0 4px 0 #222;
+}
+
+header div:not(:last-of-type) { padding-bottom: 8px; } 
+header a { color: blue; }
 
 /*
  * Main section (search results, "console")
